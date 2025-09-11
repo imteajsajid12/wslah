@@ -179,7 +179,7 @@
                         @endif
                         <div class="large-logo">{{ strtolower(substr($rest->name, 0, 2)) }}</div>
                         <div class="card-overlay">
-                            <small>@{{ $rest->instagram_url ? str_replace(['https://instagram.com/', 'https://www.instagram.com/', '@'], '', $rest->instagram_url) : 'restaurant' }}</small>
+                            {{-- <small>@{{ $rest->instagram_url ? str_replace(['https://instagram.com/', 'https://www.instagram.com/', '@'], '', $rest->instagram_url) : 'restaurant' }}</small> --}}
                         </div>
                     </div>
                 </div>

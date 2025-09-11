@@ -14,7 +14,9 @@
     </div>
     <div class="center-side" style="height: 100%">
         <div class="story-img" style="height: 75% !important">
-            @include('instagram.story.slider')
+            @if($stories_count > 0)
+                @include('instagram.story.slider')
+            @endif
         </div>
         <div class="cone-desc" style="height: 24% !important; margin-top:auto">
             <div>

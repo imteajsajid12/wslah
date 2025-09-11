@@ -134,35 +134,113 @@ class InstagramController extends Controller
     }
     public function sliderAjax(Request $request)
     {
-        
+        $restaurant = null;
+        $user_id = null;
+
+        // Priority 1: Check for 'menu' parameter (UUID)
         if ($request->has('menu') && !empty($request->get('menu'))) {
             $uuid = $request->get('menu');
-          // dd($uuid);
-            $restaurant = Restaurant::where('uuid',$uuid)->first();
-        }else {
-            $restaurant = Restaurant::where('user_id', auth()->id())->first();
+            $restaurant = Restaurant::where('uuid', $uuid)->first();
+            if ($restaurant) {
+                $user_id = $restaurant->user_id;
+            }
         }
-    
-   // dd($restaurant->user_id);
-        
-        
-        $stories = InstagramStory::where('user_id', $restaurant->user_id)
+        // Priority 2: Check for 'store_id' parameter
+        elseif ($request->has('store_id') && !empty($request->get('store_id'))) {
+            $restaurant = Restaurant::find($request->get('store_id'));
+            if ($restaurant) {
+                $user_id = $restaurant->user_id;
+            }
+        }
+        // Priority 3: Check for 'uuid' parameter
+        elseif ($request->has('uuid') && !empty($request->get('uuid'))) {
+            $uuid = $request->get('uuid');
+            $restaurant = Restaurant::where('uuid', $uuid)->first();
+            if ($restaurant) {
+                $user_id = $restaurant->user_id;
+            }
+        }
+        // Priority 4: Use authenticated user (fallback for admin panel)
+        elseif (auth()->check()) {
+            $user = auth()->user();
+            if ($user->user_type == '1') {
+                // Admin user - need explicit restaurant context
+                return response()->json([
+                    'error' => 'Restaurant context required for admin users',
+                    'restaurant' => null,
+                    'stories' => [],
+                    'stories_count' => 0
+                ], 400);
+            } else {
+                // Regular restaurant user
+                $restaurant = Restaurant::where('user_id', auth()->id())->first();
+                if ($restaurant) {
+                    $user_id = $restaurant->user_id;
+                }
+            }
+        }
+
+        // If no restaurant found, return empty response
+        if (!$restaurant || !$user_id) {
+            return response()->json([
+                'error' => 'Restaurant not found',
+                'restaurant' => null,
+                'stories' => [],
+                'stories_count' => 0
+            ], 404);
+        }
+
+        // Get stories for the specific user/restaurant
+        $stories = InstagramStory::where('user_id', $user_id)
             ->orderBy('updated_at', 'desc')
             ->get();
-            
+
         return response()->json([
             'restaurant' => $restaurant,
             'stories' => $stories,
             'stories_count' => $stories->count()
         ]);
     }
-    public function checkStoryUpdates()
+    public function checkStoryUpdates(Request $request)
     {
-        $restaurant = Restaurant::where('user_id', auth()->id())->first();
-        $stories = InstagramStory::where('user_id', auth()->id())
+        $user_id = null;
+
+        // Use the same logic as sliderAjax to determine user context
+        if ($request->has('menu') && !empty($request->get('menu'))) {
+            $uuid = $request->get('menu');
+            $restaurant = Restaurant::where('uuid', $uuid)->first();
+            if ($restaurant) {
+                $user_id = $restaurant->user_id;
+            }
+        } elseif ($request->has('store_id') && !empty($request->get('store_id'))) {
+            $restaurant = Restaurant::find($request->get('store_id'));
+            if ($restaurant) {
+                $user_id = $restaurant->user_id;
+            }
+        } elseif ($request->has('uuid') && !empty($request->get('uuid'))) {
+            $uuid = $request->get('uuid');
+            $restaurant = Restaurant::where('uuid', $uuid)->first();
+            if ($restaurant) {
+                $user_id = $restaurant->user_id;
+            }
+        } elseif (auth()->check()) {
+            $user = auth()->user();
+            if ($user->user_type != '1') {
+                $user_id = auth()->id();
+            }
+        }
+
+        if (!$user_id) {
+            return response()->json([
+                'has_updates' => false,
+                'stories_count' => 0
+            ]);
+        }
+
+        $stories = InstagramStory::where('user_id', $user_id)
             ->orderBy('updated_at', 'desc')
             ->get();
-            
+
         return response()->json([
             'has_updates' => $stories->count() > 0,
             'stories_count' => $stories->count()
@@ -372,7 +450,7 @@ class InstagramController extends Controller
                 $restaurant->update(['last_refresh_time' => now()]);
             }
         } catch(\Exception $e) {
-            
+
         }
        }
     }
@@ -386,7 +464,7 @@ class InstagramController extends Controller
         }catch(\Exception $e){}
        }
     }
-    
+
     public function cleanupStories()
     {
         try {

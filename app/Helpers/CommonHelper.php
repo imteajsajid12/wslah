@@ -71,51 +71,95 @@ function uploadFile($file, $path)
 
 function get_user_id_from_menu()
 {
-    $uuid=null;
-    $rest=null;
-            if (request()->has('menu') && !empty(request()->get('menu'))) {
-                $uuid = request()->get('menu');
-            } else {
-                if (empty($request->menu) && empty($request->store_id)) {
-                    if (auth()->check()) {
-                        $user = auth()->user();
+    $uuid = null;
+    $rest = null;
+    $request = request();
 
-                        if ($user->user_type != '1' && !$user->isRest()) {
-                            return redirect('home');
-                        }
-                        if ($user->user_type == '1') {
-                            if (isset(request()->query()['uuid'])) {
-                                $uuid = request()->query()['uuid'];
-                            } else {
-                                return redirect('home');
-                            }
-                        } else {
-                            $uuid = $user->restaurant->uuid;
-                        }
-                    }
+    // Priority 1: Check for 'menu' parameter in request
+    if ($request->has('menu') && !empty($request->get('menu'))) {
+        $uuid = $request->get('menu');
+    }
+    // Priority 2: Check for 'store_id' parameter
+    elseif ($request->has('store_id') && !empty($request->get('store_id'))) {
+        $rest = Restaurant::find($request->get('store_id'));
+        if ($rest) {
+            return $rest->user_id;
+        }
+    }
+    // Priority 3: Check for 'uuid' parameter in query string
+    elseif ($request->has('uuid') && !empty($request->get('uuid'))) {
+        $uuid = $request->get('uuid');
+    }
+    // Priority 4: Extract UUID from route parameter (for /menu/{uuid} routes)
+    elseif ($request->route() && $request->route()->parameter('uuid')) {
+        $uuid = $request->route()->parameter('uuid');
+    }
+    // Priority 5: Handle authenticated users
+    else {
+        if (auth()->check()) {
+            $user = auth()->user();
+
+            // Admin users need explicit UUID parameter
+            if ($user->user_type == '1') {
+                // For admin users, we need a UUID parameter
+                if ($request->has('uuid')) {
+                    $uuid = $request->get('uuid');
+                } else {
+                    // Return null if no UUID specified for admin
+                    return null;
+                }
+            } else {
+                // Regular restaurant users - use their restaurant UUID
+                if ($user->restaurant) {
+                    $uuid = $user->restaurant->uuid;
+                } else {
+                    return null;
                 }
             }
-            if (isset(request()->query()['store_id']) || isset(request()->store_id)) {
-                $rest = Restaurant::find(request()->query()['store_id']);
-            }elseif($uuid){
-                $rest = Restaurant::query()->where('uuid', $uuid)->first();
-            }
-          return $rest->user_id;
+        } else {
+            // No authentication and no parameters - cannot determine context
+            return null;
+        }
+    }
+
+    // Find restaurant by UUID if we have one
+    if ($uuid) {
+        $rest = Restaurant::where('uuid', $uuid)->first();
+    }
+
+    // Return user_id if restaurant found, otherwise null
+    return $rest ? $rest->user_id : null;
 }
 
 function instagram_stories_for_store($number_of_posts=null)
 {
-    $user_id=get_user_id_from_menu();
-    $res=Restaurant::where('user_id',$user_id)->first();
-    $stories=InstagramStory::where('user_id',$user_id)
-    ->orderBy('updated_at', 'desc')
-    ->limit($number_of_posts?:$res->number_posts)->get();
-   foreach($stories as $item)
-   {
+    $user_id = get_user_id_from_menu();
 
-    $item->payload=json_decode($item->payload,true);
+    // If we can't determine the user context, return empty collection
+    if (!$user_id) {
+        return collect([]);
+    }
 
-   }
+    $res = Restaurant::where('user_id', $user_id)->first();
+
+    // If restaurant not found, return empty collection
+    if (!$res) {
+        return collect([]);
+    }
+
+    // Determine the limit for posts
+    $limit = $number_of_posts ?: ($res->number_posts ?: 10);
+
+    $stories = InstagramStory::where('user_id', $user_id)
+        ->orderBy('updated_at', 'desc')
+        ->limit($limit)
+        ->get();
+
+    // Decode payload for each story
+    foreach($stories as $item) {
+        $item->payload = json_decode($item->payload, true);
+    }
+
     return $stories;
 }
 

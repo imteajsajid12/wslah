@@ -286,6 +286,9 @@ flex-direction: column;">
         style="flex-direction: row; max-height: 45vh; margin:0px !important; padding:1px 7px !important; gap:10px; padding-top:10px !important">
         <div class="center-side w-100" style="width: 40% !important; height: calc(100% - 10px) !important;">
             <div class="story-img w-100" style="flex: none; margin-bottom:10px !important; height: 34vh;">
+                @if($stories_count > 0)
+                    @include('instagram.story.slider')
+                @endif
             </div>
             <div class="cone-desc w-100" style="margin-top:0 !important">
                 <div>
