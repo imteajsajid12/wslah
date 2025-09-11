@@ -188,6 +188,10 @@
                 <div class="center-section">
                     <div class="header-card">
                         <div class="text-center">
+                             <div class="logo" id="the_logo" style="height: 33%">
+            <img src="" alt="" />
+        </div>
+
                             <div class="brand-logo">{{ strtolower($rest->name) }}</div>
                             <div class="brand-subtitle">- café -</div>
                             <div style="margin: 10px 0;">{{ $rest->menu_title_ar }}</div>

@@ -205,7 +205,7 @@
                     </div>
                 </div>
 
-                <!-- Additional Content Cards -->
+                {{-- <!-- Additional Content Cards -->
                 <div class="content-card">
                     <img src="https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=400&h=300&fit=crop" alt="Tea Service">
                     <div class="card-overlay">
@@ -232,7 +232,7 @@
                     <div class="card-overlay">
                         <div>Iced Beverages</div>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>
