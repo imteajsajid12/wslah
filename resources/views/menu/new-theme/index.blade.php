@@ -6,12 +6,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="description" content="project" />
-    
+
     <!-- Favicon -->
     @if(env('APP_FAVICON_ICON'))
         <link rel="icon" type="image/x-icon" href="{{ asset(env('APP_FAVICON_ICON')) }}">
     @endif
-    
+
     <!-- Dynamic background styles -->
     <style>
         :root {
@@ -20,7 +20,7 @@
             --frame-color: {{ $rest->frame_color ?? '#1a3d32' }};
             --font-color: {{ $rest->font_color ?? '#ffffff' }};
         }
-        
+
         body {
             margin: 0;
             padding: 0;
@@ -36,7 +36,7 @@
                 background: linear-gradient(135deg, var(--background-color) 0%, var(--frame-color) 100%);
             @endif
         }
-        
+
         .theme-container {
             min-height: 100vh;
             width: 100%;
@@ -49,7 +49,7 @@
         <input type="hidden" name="" id="theme_style" value="{{ $rest->theme_style ?? 'default' }}">
         <input type="hidden" name="" id="layout_type" value="{{ $rest->layout_type ?? 'horizontal' }}">
         <input type="hidden" id="animation_timer" value="{{ $animation_timer }}">
-        
+
         @if(($rest->layout_type ?? 'horizontal') === 'vertical')
             @include('menu.new-theme.vertical')
         @else
@@ -60,25 +60,25 @@
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
-    
+
     <!-- Custom script code from restaurant settings -->
     @if($rest->script_code)
         {!! $rest->script_code !!}
     @endif
-    
+
     <script>
         // Global variables for theme functionality
         window.themeStyle = '{{ $rest->theme_style ?? "default" }}';
         window.layoutType = '{{ $rest->layout_type ?? "horizontal" }}';
         window.animationTimer = {{ $animation_timer ?? 30000 }};
-        
+
         // Auto-refresh functionality
-        if (window.animationTimer > 0) {
-            setTimeout(function() {
-                location.reload();
-            }, window.animationTimer);
-        }
-        
+        // if (window.animationTimer > 0) {
+        //     setTimeout(function() {
+        //         location.reload();
+        //     }, window.animationTimer);
+        // }
+
         // Dynamic data loading
         function loadDynamicData() {
             $.ajax({
@@ -105,15 +105,15 @@
                 }
             });
         }
-        
+
         // Load dynamic data on page load
         $(document).ready(function() {
             loadDynamicData();
-            
+
             // Refresh dynamic data every 30 seconds
             setInterval(loadDynamicData, 30000);
         });
-        
+
         // Video slider functionality
         function loadVideoSlider() {
             $.ajax({
@@ -127,7 +127,7 @@
                 }
             });
         }
-        
+
         // Load video slider on page load
         $(document).ready(function() {
             loadVideoSlider();

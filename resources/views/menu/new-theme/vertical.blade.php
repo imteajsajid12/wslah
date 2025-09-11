@@ -196,9 +196,9 @@
                     @else
                         <img src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400&h=300&fit=crop" alt="Cold Coffee Bottle">
                     @endif
-                    <div class="play-button">
+                    {{-- <div class="play-button">
                         <i class="fas fa-play"></i>
-                    </div>
+                    </div> --}}
                     <div class="card-overlay">
                         <div>{{ $rest->caption_en ?? 'Cold Coffee' }}</div>
                         <small>250 ml</small>
@@ -240,37 +240,37 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
-    
+
     <script>
         // Live date and time update
         function updateDateTime() {
             const now = new Date();
-            const options = { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
             };
             const dateString = now.toLocaleDateString('ar-SA', options);
-            const timeString = now.toLocaleTimeString('en-US', { 
-                hour: '2-digit', 
+            const timeString = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
                 minute: '2-digit',
-                hour12: true 
+                hour12: true
             });
-            
+
             document.getElementById('live_datetime').innerHTML = '<i class="fas fa-calendar"></i> ' + dateString;
             document.getElementById('live_time').textContent = timeString;
         }
 
-        // Update every second
-        setInterval(updateDateTime, 1000);
-        updateDateTime(); // Initial call
+        // // Update every second
+        // setInterval(updateDateTime, 1000);
+        // updateDateTime(); // Initial call
 
         // Auto-refresh functionality
         @if($rest->animation_timer)
-            setTimeout(function() {
-                location.reload();
-            }, {{ $animation_timer }});
+            // setTimeout(function() {
+            //     location.reload();
+            // }, {{ $animation_timer }});
         @endif
     </script>
 </body>
