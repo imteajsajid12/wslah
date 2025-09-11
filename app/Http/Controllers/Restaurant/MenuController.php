@@ -13,6 +13,12 @@ class MenuController extends Controller
 {
     public function show(Restaurant $restaurant)
     {
+        // Check if new theme system is enabled
+        if (($restaurant->theme_style ?? 'default') === 'new') {
+            // Redirect to the new theme system
+            return redirect()->route('menu.show', ['uuid' => $restaurant->uuid]);
+        }
+
         $dataTheme = $restaurant->theme;
         if (request()->restaurant_view) {
             $dataTheme = request()->restaurant_view;

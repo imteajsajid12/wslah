@@ -77,6 +77,31 @@
              width: 20px;
              height: 20px;
          }
+
+         .theme-section {
+             background: #f8f9fa;
+             border-radius: 10px;
+             padding: 20px;
+             margin: 20px 0;
+             border: 2px solid #e9ecef;
+         }
+
+         .new-theme-options {
+             display: none;
+             background: #e3f2fd;
+             border-radius: 8px;
+             padding: 15px;
+             margin-top: 15px;
+             border-left: 4px solid #2196f3;
+         }
+
+         .theme-preview {
+             border: 1px solid #ddd;
+             border-radius: 8px;
+             padding: 10px;
+             margin-top: 10px;
+             background: white;
+         }
      </style>
      @push('third_party_scripts')
      <script>
@@ -190,6 +215,63 @@
 
     });
 
+</script>
+
+<script>
+    // Theme style change handler
+    $(document).ready(function() {
+        $('#theme_style').change(function() {
+            var selectedTheme = $(this).val();
+            if (selectedTheme === 'new') {
+                $('.new-theme-options').show();
+                showThemePreview();
+            } else {
+                $('.new-theme-options').hide();
+                hideThemePreview();
+            }
+        });
+
+        // Layout type change handler
+        $('#layout_type').change(function() {
+            var selectedLayout = $(this).val();
+            updateThemePreview(selectedLayout);
+        });
+
+        // Custom background preview
+        $('#custom_background').change(function(e) {
+            var file = e.target.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#background_preview').attr('src', e.target.result).show();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Initialize theme options visibility
+        var currentTheme = $('#theme_style').val();
+        if (currentTheme === 'new') {
+            $('.new-theme-options').show();
+        } else {
+            $('.new-theme-options').hide();
+        }
+    });
+
+    function showThemePreview() {
+        // Add preview functionality here
+        console.log('Showing new theme preview');
+    }
+
+    function hideThemePreview() {
+        // Hide preview functionality here
+        console.log('Hiding theme preview');
+    }
+
+    function updateThemePreview(layout) {
+        // Update preview based on layout
+        console.log('Updating theme preview for layout:', layout);
+    }
 </script>
 
 <script>

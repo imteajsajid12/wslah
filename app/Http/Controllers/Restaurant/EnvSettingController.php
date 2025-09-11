@@ -141,6 +141,19 @@ class EnvSettingController extends Controller {
         // vertical mode
         $data['vertical_mode'] = $request->get('vertical_mode');
 
+        // New theme fields
+        $data['theme_style'] = $request->get('theme_style', 'default');
+        $data['layout_type'] = $request->get('layout_type', 'horizontal');
+
+        // Handle custom background upload
+        if($request->hasFile('custom_background'))
+        {
+            $file = $request->file('custom_background');
+            $filename = uniqid('custom_bg_') . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('custom_backgrounds', $filename, 'public');
+            $data['custom_background'] = $path;
+        }
+
         //profile_picture
         // store Restaurant Profile Picture in public folder client original and extension move public
         if($request->has('profile_picture'))

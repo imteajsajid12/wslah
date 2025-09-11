@@ -526,6 +526,55 @@
     </div>
 </div> --}}
 
+<!-- Theme Selection Section -->
+<div class="row mt-5 mb-4">
+    <div class="col-md-12">
+        <div class="theme-section">
+            <h5 class="card-title">{{ __('Theme Settings') }}</h5>
+            <p class="text-muted">Choose between default theme or the new modern theme with advanced layout options</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        @php($theme_style = $row->theme_style ?? 'default')
+        <div class="mb-3 form-group">
+            <label class="form-label" for="theme_style">{{ __('Theme Style') }} <span class="text-danger">*</span></label>
+            <select class="form-control" name="theme_style" id="theme_style">
+                <option value="default" {{ $theme_style === 'default' ? 'selected' : '' }}>{{ __('Default Theme') }}</option>
+                <option value="new" {{ $theme_style === 'new' ? 'selected' : '' }}>{{ __('New Theme') }}</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        @php($layout_type = $row->layout_type ?? 'horizontal')
+        <div class="mb-3 form-group">
+            <label class="form-label" for="layout_type">{{ __('Layout Type') }} <span class="text-danger">*</span></label>
+            <select class="form-control" name="layout_type" id="layout_type">
+                <option value="horizontal" {{ $layout_type === 'horizontal' ? 'selected' : '' }}>{{ __('Horizontal Layout') }}</option>
+                <option value="vertical" {{ $layout_type === 'vertical' ? 'selected' : '' }}>{{ __('Vertical Layout') }}</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        @php($custom_background = $row->custom_background ?? '')
+        <div class="mb-3 form-group">
+            <label class="form-label" for="custom_background">{{ __('Custom Background') }}</label>
+            <input type="file" name="custom_background" id="custom_background" class="form-control" accept="image/*">
+            @if($custom_background)
+                <div class="mt-2">
+                    <img src="{{ asset('storage/' . $custom_background) }}" alt="Current Background" style="max-width: 100px; max-height: 100px; border-radius: 5px;">
+                    <small class="text-muted d-block">{{ __('Current background') }}</small>
+                </div>
+            @endif
+            <img id="background_preview" src="" alt="Background Preview" style="max-width: 100px; max-height: 100px; border-radius: 5px; margin-top: 10px; display: none;">
+        </div>
+    </div>
+</div>
+
 <div class="col-md-4 mt-2">
     <div class="row">
         <div class="col-md-12">

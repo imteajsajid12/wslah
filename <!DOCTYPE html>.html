@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ever Café - Layout Designs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #2d5a4a 0%, #1a3d32 100%);
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+        }
+
+        .layout-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .toggle-buttons {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .toggle-btn {
+            background: #4a7c59;
+            color: white;
+            border: 2px solid white;
+            padding: 10px 25px;
+            margin: 0 10px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: white;
+            color: #4a7c59;
+        }
+
+        .toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .card-container {
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            margin: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        }
+
+        .card-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+
+        .header-card {
+            background: linear-gradient(135deg, #4a7c59 0%, #2d5a4a 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+
+        .brand-logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .brand-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .website-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .time-info {
+            text-align: right;
+            font-size: 0.9rem;
+        }
+
+        .content-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            overflow: hidden;
+            height: 200px;
+            position: relative;
+        }
+
+        .content-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+            color: white;
+            padding: 15px;
+        }
+
+        .large-logo {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 3rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* Vertical Layout */
+        .vertical-layout .header-card {
+            margin-bottom: 20px;
+        }
+
+        .vertical-layout .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .vertical-layout .content-card {
+            height: 250px;
+        }
+
+        /* Horizontal Layout */
+        .horizontal-layout {
+            display: none;
+        }
+
+        .horizontal-layout.active {
+            display: block;
+        }
+
+        .horizontal-layout .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            height: 600px;
+        }
+
+        .horizontal-layout .left-section,
+        .horizontal-layout .right-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .horizontal-layout .left-section .content-card,
+        .horizontal-layout .right-section .content-card {
+            height: 100%;
+        }
+
+        .horizontal-layout .center-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .horizontal-layout .center-section .header-card {
+            margin-bottom: 0;
+        }
+
+        .horizontal-layout .center-section .content-card {
+            flex: 1;
+        }
+
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255,255,255,0.9);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #4a7c59;
+        }
+
+        @media (max-width: 768px) {
+            .vertical-layout .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .horizontal-layout .main-grid {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .horizontal-layout .left-section .content-card,
+            .horizontal-layout .right-section .content-card {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout-container">
+        <!-- Toggle Buttons -->
+        <div class="toggle-buttons">
+            <button class="toggle-btn active" onclick="showLayout('vertical')">
+                <i class="fas fa-th-large"></i> Vertical Layout
+            </button>
+            <button class="toggle-btn" onclick="showLayout('horizontal')">
+                <i class="fas fa-grip-horizontal"></i> Horizontal Layout
+            </button>
+        </div>
+
+        <!-- Vertical Layout -->
+        <div id="vertical-layout" class="vertical-layout active">
+            <div class="card-container">
+                <!-- Header -->
+                <div class="header-card">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <div class="brand-logo">ever</div>
+                            <div class="brand-subtitle">- café -</div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div style="font-size: 1.2rem; margin-bottom: 5px;">معك للأبد</div>
+                            <div>With You For Ever</div>
+                            <div class="website-info justify-content-center">
+                                <i class="fas fa-link"></i>
+                                <span>evercafe.oman</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="time-info">
+                                <div><i class="fas fa-calendar"></i> السبت ٩ أغسطس ٢٠٢٥</div>
+                                <div style="font-size: 1.5rem; font-weight: bold;">09:24 PM</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content Grid -->
+                <div class="content-grid">
+                    <div class="content-card">
+                        <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&h=300&fit=crop" alt="Coffee Cup">
+                        <div class="large-logo">ev<br>er</div>
+                        <div class="card-overlay">
+                            <small>@shahla__91</small>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <img src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400&h=300&fit=crop" alt="Cold Coffee Bottle">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        <div class="card-overlay">
+                            <div>Cold Coffee</div>
+                            <small>250 ml</small>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <img src="https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=400&h=300&fit=crop" alt="Tea Service">
+                    </div>
+
+                    <div class="content-card">
+                        <img src="https://images.unsplash.com/photo-1551024506-0bccd828d307?w=400&h=300&fit=crop" alt="Dessert">
+                    </div>
+
+                    <div class="content-card">
+                        <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=300&fit=crop" alt="Cake Slice">
+                    </div>
+
+                    <div class="content-card">
+                        <img src="https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&h=300&fit=crop" alt="Iced Drink">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Horizontal Layout -->
+        <div id="horizontal-layout" class="horizontal-layout">
+            <div class="card-container">
+                <div class="main-grid">
+                    <!-- Left Section -->
+                    <div class="left-section">
+                        <div class="content-card">
+                            <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&h=600&fit=crop" alt="Coffee Cup">
+                            <div class="large-logo">ev<br>er</div>
+                            <div class="card-overlay">
+                                <small>@shahla__91</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Center Section -->
+                    <div class="center-section">
+                        <div class="header-card">
+                            <div class="text-center">
+                                <div class="brand-logo">ever</div>
+                                <div class="brand-subtitle">- café -</div>
+                                <div style="margin: 10px 0;">معك للأبد</div>
+                                <div>With You For Ever</div>
+                                <div class="website-info justify-content-center">
+                                    <i class="fas fa-link"></i>
+                                    <span>evercafe.oman</span>
+                                </div>
+                                <div class="time-info" style="text-align: center; margin-top: 10px;">
+                                    <div>السبت ٩ أغسطس ٢٠٢٥</div>
+                                    <div style="font-size: 1.2rem; font-weight: bold;">09:24 PM</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="content-card">
+                            <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=300&fit=crop" alt="Tiramisu Cake">
+                            <div class="card-overlay">
+                                <div style="text-align: center; font-size: 1.2rem;">with you, for ever</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Section -->
+                    <div class="right-section">
+                        <div class="content-card">
+                            <img src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400&h=600&fit=crop" alt="Cold Coffee Bottle">
+                            <div class="play-button">
+                                <i class="fas fa-play"></i>
+                            </div>
+                            <div class="card-overlay">
+                                <div>Cold Coffee</div>
+                                <small>250 ml</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showLayout(layoutType) {
+            // Hide all layouts
+            document.getElementById('vertical-layout').classList.remove('active');
+            document.getElementById('horizontal-layout').classList.remove('active');
+
+            // Remove active class from all buttons
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected layout
+            if (layoutType === 'vertical') {
+                document.getElementById('vertical-layout').classList.add('active');
+                document.getElementById('vertical-layout').style.display = 'block';
+                document.getElementById('horizontal-layout').style.display = 'none';
+            } else {
+                document.getElementById('horizontal-layout').classList.add('active');
+                document.getElementById('horizontal-layout').style.display = 'block';
+                document.getElementById('vertical-layout').style.display = 'none';
+            }
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

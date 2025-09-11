@@ -75,8 +75,17 @@ class MenuController extends Controller
 
 
         $intro_video_url = Video::where('restaurant_id', $video_id)->orderBy('sort_order')->get();
+        $stories_count=InstagramStory::where('user_id',$rest->user_id)->count();
 
-        return view('menu.index', [
+        // Determine which theme to use
+        $theme_style = $rest->theme_style ?? 'default';
+        $view_name = 'menu.index';
+
+        if ($theme_style === 'new') {
+            $view_name = 'menu.new-theme.index';
+        }
+
+        return view($view_name, [
             'logo'            => $rest->logo,
             'foods'           => $rest->foods()->where('foods.is_available', 1)->get(),
             'menu_title'      => [
@@ -86,6 +95,7 @@ class MenuController extends Controller
 
             'intro_video_url' => $intro_video_url,
             'script_code'    => $rest->script_code,
+            'stories_count'=>$stories_count,
             'rest' => $rest,
             'is_vertical' => $rest->vertical_mode,
             'animation_timer' => (int)$rest->animation_timer * 1000,
@@ -93,10 +103,14 @@ class MenuController extends Controller
         ]);
     }
 
-    public function index(Request $request)
+    public function index(Request $request, $uuid = null)
     {
         // dd(\Hash::make('12121212'));
-        if ($request->has('menu') && !empty($request->get('menu'))) {
+
+        // Handle UUID from route parameter first
+        if ($uuid) {
+            // UUID provided in route parameter - use it directly
+        } elseif ($request->has('menu') && !empty($request->get('menu'))) {
             $uuid = $request->get('menu');
         } else {
             if (empty($request->menu) && empty($request->store_id)) {
@@ -125,7 +139,7 @@ class MenuController extends Controller
         }else{
             $rest = Restaurant::query()->where('uuid', $uuid)->first();
         }
-        
+
        // dd($rest);
 
         if (empty($rest)) {
@@ -163,8 +177,17 @@ class MenuController extends Controller
         }
 
         $intro_video_url = Video::where('restaurant_id', $video_id)->orderBy('sort_order')->get();
-          $stories_count=InstagramStory::where('user_id',$rest->user_id)->count();
-        return view('menu.index', [
+        $stories_count=InstagramStory::where('user_id',$rest->user_id)->count();
+
+        // Determine which theme to use
+        $theme_style = $rest->theme_style ?? 'default';
+        $view_name = 'menu.index';
+
+        if ($theme_style === 'new') {
+            $view_name = 'menu.new-theme.index';
+        }
+
+        return view($view_name, [
             'logo'            => $rest->logo,
             'foods'           => $rest->foods()->where('foods.is_available', 1)->get(),
             'menu_title'      => [

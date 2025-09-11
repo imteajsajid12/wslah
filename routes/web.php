@@ -64,6 +64,7 @@ Route::get('restaurant/{restaurant}/dashboard', [App\Http\Controllers\HomeContro
 Route::middleware(['preventBackHistory'])->group(function () {
 
     Route::get('/', [\App\Http\Controllers\MenuController::class, 'index'])->name('myrest');
+    Route::get('/menu/{uuid}', [\App\Http\Controllers\MenuController::class, 'index'])->name('menu.show');
     // Route::get('/admin_store_view/{uuid1?}', [\App\Http\Controllers\MenuController::class, 'index'])->name('myrest');
     Route::get('get_dynamic_data', [\App\Http\Controllers\MenuController::class, 'getDynamicData']);
     Route::get('get_foods_data', [\App\Http\Controllers\MenuController::class, 'foodData']);
