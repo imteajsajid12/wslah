@@ -209,12 +209,16 @@ class MenuController extends Controller
     public function getVideoUrls(Request $request)
     {
         $uuidData = Restaurant::where('uuid', $request->uuid)->first();
-            $uuid = $uuidData->id;
+        $uuid = $uuidData->id;
         $intro_video_url = Video::where('restaurant_id', $uuid)->orderBy('sort_order')->get();
 
-        return view('menu.partials.video-slider')->with('intro_video_url', $intro_video_url);
+        // Check if request expects JSON (for sequential video system)
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json($intro_video_url);
+        }
 
-        return $intro_video_url;
+        // Return view for QCSlider system
+        return view('menu.partials.video-slider')->with('intro_video_url', $intro_video_url);
     }
     public function getDynamicData(Request $request)
     {
@@ -253,6 +257,7 @@ class MenuController extends Controller
             'vertical_mode' => $rest->vertical_mode,
             'profile_picture' => asset('storage/' . $rest->profile_picture),
             'animation_timer' => (int)$rest->animation_timer * 1000,
+            'animation' => $rest->animation ?? 'fadeInUp',
             'menu_title' => [
                 'en' => $rest->menu_title_en,
                 'ar' => $rest->menu_title_ar,
