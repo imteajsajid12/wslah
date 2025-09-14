@@ -37,6 +37,10 @@
             padding: 20px;
             border-radius: 15px;
             margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            min-height: 120px;
+            display: flex;
+            align-items: center;
         }
 
         .brand-logo {
@@ -53,13 +57,38 @@
         .website-info {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             margin-top: 10px;
+            font-weight: 500;
         }
 
         .time-info {
             text-align: right;
             font-size: 0.9rem;
+        }
+
+        .qr-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 12px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .arabic-date {
+            font-family: 'Arial', sans-serif;
+            direction: rtl;
+            text-align: right;
+        }
+
+        .english-time {
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            letter-spacing: 0.5px;
         }
 
         .content-card {
@@ -123,6 +152,36 @@
         @media (max-width: 768px) {
             .content-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .header-card {
+                padding: 15px;
+                margin-bottom: 10px;
+                min-height: 100px;
+            }
+
+            .header-card .row {
+                flex-direction: column;
+                text-align: center !important;
+                gap: 10px;
+            }
+
+            .header-card .col-4 {
+                width: 100%;
+                text-align: center !important;
+            }
+
+            .brand-logo {
+                font-size: 1.5rem !important;
+            }
+
+            .qr-badge {
+                justify-self: center;
+                margin: 0 auto;
+            }
+
+            .product-items-container {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
@@ -457,23 +516,60 @@
         <div class="card-container">
             <!-- Header -->
             <div class="header-card">
-                <div class="row align-items-center">
-                    <div class="col-md-4">
-                        <div class="brand-logo">{{ strtolower($rest->name) }}</div>
-                        <div class="brand-subtitle">- café -</div>
+                <div class="row align-items-center h-100">
+                    <!-- Left Section - Logo and Brand -->
+                    <div class="col-4">
+                        <!-- Logo Section -->
+                        <div class="logo" id="the_logo" style="margin-bottom: 10px;">
+                            @if($rest->static_logo)
+                                <img src="{{ $rest->static_logo }}" alt="{{ $rest->name }}" style="max-height: 60px; max-width: 150px; object-fit: contain;" />
+                            @elseif($rest->logo)
+                                <img src="{{ asset('storage/' . $rest->logo) }}" alt="{{ $rest->name }}" style="max-height: 60px; max-width: 150px; object-fit: contain;" />
+                            @endif
+                        </div>
+
+                        <!-- Restaurant Name -->
+                        <div class="brand-logo" style="font-size: 2rem; margin-bottom: 5px;">{{ strtolower($rest->name) }}</div>
+                        <div class="brand-subtitle" style="font-size: 0.8rem;">- café -</div>
                     </div>
-                    <div class="col-md-4 text-center">
-                        <div style="font-size: 1.2rem; margin-bottom: 5px;">{{ $rest->menu_title_ar }}</div>
-                        <div>{{ $rest->menu_title_en }}</div>
-                        <div class="website-info justify-content-center">
-                            <i class="fas fa-link"></i>
-                            <span>{{ request()->getHost() }}</span>
+
+                    <!-- Center Section - Menu Titles and Website -->
+                    <div class="col-4 text-center">
+                        <!-- Arabic Menu Title -->
+                        <div style="font-size: 1.4rem; font-weight: bold; margin-bottom: 8px; direction: rtl;">
+                            {{ $rest->menu_title_ar ?? 'معاك للأبد' }}
+                        </div>
+
+                        <!-- English Menu Title -->
+                        <div style="font-size: 1.1rem; margin-bottom: 12px;">
+                            {{ $rest->menu_title_en ?? 'With You For Ever' }}
+                        </div>
+
+                        <!-- Website Info with Icon -->
+                        <div class="website-info justify-content-center" style="font-size: 0.9rem;">
+                            <i class="fas fa-link" style="margin-right: 8px;"></i>
+                            <span>{{ $rest->name ? strtolower($rest->name) : 'restaurant' }}.{{ request()->getHost() }}</span>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="time-info">
-                            <div id="live_datetime"><i class="fas fa-calendar"></i> </div>
-                            <div id="live_time" style="font-size: 1.5rem; font-weight: bold;"></div>
+
+                    <!-- Right Section - Date, Time and QR -->
+                    <div class="col-4 text-end">
+                        <!-- Date in Arabic -->
+                        <div class="arabic-date" style="font-size: 0.9rem; margin-bottom: 5px;" id="live_datetime_ar">
+                            السبت ٩ أغسطس ٢٠٢٤
+                        </div>
+
+                        <!-- Time in English -->
+                        <div class="english-time" style="font-size: 1.3rem; margin-bottom: 10px;" id="live_time">
+                            09:24 PM
+                        </div>
+
+                        <!-- QR Code Icon -->
+                        <div style="display: flex; justify-content: flex-end; align-items: center;">
+                            <div class="qr-badge">
+                                <i class="fas fa-qrcode" style="font-size: 1.2rem;"></i>
+                                <span>منصة رقمية</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -537,21 +633,34 @@
         // Live date and time update
         function updateDateTime() {
             const now = new Date();
-            const options = {
+
+            // Arabic date formatting
+            const arabicOptions = {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
             };
-            const dateString = now.toLocaleDateString('ar-SA', options);
+            const arabicDateString = now.toLocaleDateString('ar-SA', arabicOptions);
+
+            // English time formatting
             const timeString = now.toLocaleTimeString('en-US', {
                 hour: '2-digit',
                 minute: '2-digit',
                 hour12: true
             });
 
-            document.getElementById('live_datetime').innerHTML = '<i class="fas fa-calendar"></i> ' + dateString;
-            document.getElementById('live_time').textContent = timeString;
+            // Update Arabic date
+            const arabicDateElement = document.getElementById('live_datetime_ar');
+            if (arabicDateElement) {
+                arabicDateElement.textContent = arabicDateString;
+            }
+
+            // Update English time
+            const timeElement = document.getElementById('live_time');
+            if (timeElement) {
+                timeElement.textContent = timeString;
+            }
         }
 
         // Sequential Video System

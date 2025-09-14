@@ -286,9 +286,9 @@ flex-direction: column;">
         style="flex-direction: row; max-height: 45vh; margin:0px !important; padding:1px 7px !important; gap:10px; padding-top:10px !important">
         <div class="center-side w-100" style="width: 40% !important; height: calc(100% - 10px) !important;">
             <div class="story-img w-100" style="flex: none; margin-bottom:10px !important; height: 34vh;">
-                @if($stories_count > 0)
-                    @include('instagram.story.slider')
-                @endif
+                {{-- @if($stories_count > 0) --}}
+                            @include('/instagram/story/slider')
+                {{-- @endif --}}
             </div>
             <div class="cone-desc w-100" style="margin-top:0 !important">
                 <div>
@@ -317,6 +317,19 @@ flex-direction: column;">
 
     <div class="right-side w-100" style="margin: 0px 0px !important; height:25vh !important; padding-top: 0px !important; padding-bottom: 10px !important">
         <div class="video-container" id="ajax-video-slider-container" style="height: auto">
+            <!-- Sequential Video Element -->
+            <video id="vertical-sequential-video" autoplay muted loop style="width: 100%; height: 100%; object-fit: cover; border-radius: 15px; display: none;">
+                <source src="" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+
+            <!-- Fallback content when no videos -->
+            <div id="vertical-video-fallback" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #4a7c59 0%, #2d5a4a 100%); border-radius: 15px;">
+                <div style="text-align: center; color: white;">
+                    <i class="fas fa-video" style="font-size: 3rem; margin-bottom: 10px; opacity: 0.7;"></i>
+                    <p style="margin: 0; opacity: 0.8;">Video Content</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -338,3 +351,153 @@ flex-direction: column;">
         </div>
     </div>
 </div>
+
+<!-- Video Loading Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{{ asset('qcslider.jquery.js') }}"></script>
+<link href="{{ asset('qc.slider.css') }}" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+<style>
+.video-container {
+    min-height: 200px !important;
+    position: relative !important;
+}
+
+.video-container video,
+.video-container > div {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+#horizontal-video-fallback,
+#vertical-video-fallback {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 200px !important;
+    /* background: linear-gradient(135deg, #4a7c59 0%, #2d5a4a 100%) !important; */
+    border-radius: 15px !important;
+    color: white !important;
+}
+
+#horizontal-sequential-video,
+#vertical-sequential-video {
+    display: none !important;
+}
+</style>
+
+<script>
+// Sequential Video System for Vertical
+var video_count = 0;
+var videos = [];
+var sequentialVideo = document.getElementById("Vertical-sequential-video");
+var videoFallback = document.getElementById("Vertical-video-fallback");
+
+// Initialize fallback display
+if (videoFallback) {
+    videoFallback.style.display = 'flex';
+    console.log('Vertical video fallback initialized');
+}
+if (sequentialVideo) {
+    sequentialVideo.style.display = 'none';
+    console.log('Vertical sequential video hidden initially');
+}
+
+async function fetchVideos1() {
+    try {
+        const response = await $.ajax({
+            url: "{{ url('get_video_urls') }}?uuid={{ $rest->uuid }}",
+            type: "get",
+            data: {},
+        });
+
+        if (response && Array.isArray(response)) {
+            videos = [];
+            response.forEach((video) => {
+                videos.push('/storage/' + video.file);
+            });
+
+            console.log('Vertical Videos loaded:', videos.length);
+
+            if (videos.length > 0 && sequentialVideo) {
+                sequentialVideo.style.display = 'block';
+                videoFallback.style.display = 'none';
+                playNextVideo();
+            } else {
+                if (sequentialVideo) sequentialVideo.style.display = 'none';
+                videoFallback.style.display = 'flex';
+                loadVideoSlider();
+            }
+        } else {
+            console.log('Vertical No video data received');
+            if (sequentialVideo) sequentialVideo.style.display = 'none';
+            videoFallback.style.display = 'flex';
+            loadVideoSlider();
+        }
+    } catch (error) {
+        console.error("Vertical Error fetching videos:", error);
+        if (sequentialVideo) sequentialVideo.style.display = 'none';
+        videoFallback.style.display = 'flex';
+        loadVideoSlider();
+    }
+}
+
+function playNextVideo() {
+    if (!sequentialVideo || videos.length === 0) return;
+
+    if (video_count < videos.length) {
+        sequentialVideo.src = videos[video_count];
+        sequentialVideo.play().catch(e => console.log('Video play failed:', e));
+    } else {
+        video_count = 0;
+        sequentialVideo.src = videos[video_count];
+        sequentialVideo.play().catch(e => console.log('Video play failed:', e));
+    }
+}
+
+if (sequentialVideo) {
+    sequentialVideo.addEventListener("ended", function() {
+        video_count++;
+        playNextVideo();
+    });
+
+    sequentialVideo.addEventListener("error", function(e) {
+        console.log('Video error:', e);
+        video_count++;
+        playNextVideo();
+    });
+}
+
+let initialData = null;
+
+async function loadVideoSlider() {
+    try {
+        const response = await fetch("{{ route('loadVideoSlider') }}?uuid={{ $rest->uuid }}");
+        const data = await response.text();
+
+        if (initialData === null || initialData !== data) {
+            if (!sequentialVideo || videos.length === 0) {
+                $("#ajax-video-slider-container").html(data);
+                if ($("#slider").length) {
+                    $("#slider").QCslider({
+                        duration: 7000,
+                    });
+                }
+            }
+            initialData = data;
+        }
+    } catch (error) {
+        console.error('Error loading video slider:', error);
+    }
+}
+
+$(document).ready(function() {
+    fetchVideos1();
+    setInterval(fetchVideos1, 20 * 1000);
+    setInterval(loadVideoSlider, 6 * 1000);
+});
+</script>
