@@ -18,16 +18,7 @@
                 @include('/instagram/story/slider')
             @endif
         </div>
-        <div class="cone-desc" style="height: 24% !important; margin-top:auto">
-            <div>
-                <p></p>
-                <p class="en_caption"></p>
-                <hr />
-                <p class="it">
 
-                </p>
-            </div>
-        </div>
     </div>
 
     <!-- start right-side -->

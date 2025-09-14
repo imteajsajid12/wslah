@@ -39,7 +39,7 @@
             margin-bottom: 15px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             min-height: 120px;
-            display: flex;
+            /* display: flex; */
             align-items: center;
         }
 
@@ -78,6 +78,11 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.1);
         }
+         .insta-logo {
+            width: 35px;
+            height: auto;
+        }
+
 
         .arabic-date {
             font-family: 'Arial', sans-serif;
@@ -150,9 +155,6 @@
         }
 
         @media (max-width: 768px) {
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
 
             .header-card {
                 padding: 15px;
@@ -160,11 +162,7 @@
                 min-height: 100px;
             }
 
-            .header-card .row {
-                flex-direction: column;
-                text-align: center !important;
-                gap: 10px;
-            }
+
 
             .header-card .col-4 {
                 width: 100%;
@@ -181,7 +179,11 @@
             }
 
             .product-items-container {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .layout-container{
+                padding: 0px;
             }
         }
 
@@ -239,7 +241,7 @@
         .product-item img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            /* object-fit: cover; */
         }
 
         .product-item .card-overlay {
@@ -516,21 +518,21 @@
         <div class="card-container">
             <!-- Header -->
             <div class="header-card">
-                <div class="row align-items-center h-100">
+                <div class="row align-items-center  h-100">
                     <!-- Left Section - Logo and Brand -->
-                    <div class="col-4">
-                        <!-- Logo Section -->
-                        <div class="logo" id="the_logo" style="margin-bottom: 10px;">
-                            @if($rest->static_logo)
-                                <img src="{{ $rest->static_logo }}" alt="{{ $rest->name }}" style="max-height: 60px; max-width: 150px; object-fit: contain;" />
-                            @elseif($rest->logo)
-                                <img src="{{ asset('storage/' . $rest->logo) }}" alt="{{ $rest->name }}" style="max-height: 60px; max-width: 150px; object-fit: contain;" />
-                            @endif
-                        </div>
+                    <div class="col-4 text-center">
+
 
                         <!-- Restaurant Name -->
-                        <div class="brand-logo" style="font-size: 2rem; margin-bottom: 5px;">{{ strtolower($rest->name) }}</div>
-                        <div class="brand-subtitle" style="font-size: 0.8rem;">- café -</div>
+                        {{-- <div class="brand-logo" style="font-size: 2rem; margin-bottom: 5px;">{{ strtolower($rest->name) }}</div>
+                        <div class="brand-subtitle" style="font-size: 0.8rem;">- café -</div> --}}
+                        <div class="logo" id="the_logo" style="margin-bottom: 10px;">
+                            @if($rest->logo)
+                                <img src="{{ $rest->logo }}" alt="{{ $rest->name }}" style="max-height: 60px; max-width: 150px; object-fit: contain;" />
+                            {{-- @elseif($rest->logo)
+                                <img src="{{ asset('storage/' . $rest->logo) }}" alt="{{ $rest->name }}" style="max-height: 60px; max-width: 150px; object-fit: contain;" /> --}}
+                            @endif
+                        </div>
                     </div>
 
                     <!-- Center Section - Menu Titles and Website -->
@@ -542,20 +544,36 @@
 
                         <!-- English Menu Title -->
                         <div style="font-size: 1.1rem; margin-bottom: 12px;">
-                            {{ $rest->menu_title_en ?? 'With You For Ever' }}
+                            {{ $rest->caption_en ?? 'With You For Ever' }}
                         </div>
 
                         <!-- Website Info with Icon -->
                         <div class="website-info justify-content-center" style="font-size: 0.9rem;">
-                            <i class="fas fa-link" style="margin-right: 8px;"></i>
-                            <span>{{ $rest->name ? strtolower($rest->name) : 'restaurant' }}.{{ request()->getHost() }}</span>
+                            {{-- <i class="fas fa-link" style="margin-right: 8px;"></i> --}}
+                            <img class="insta-logo" src="{{ asset($rest->logo) }}" alt="">
+                            <span>{{ $rest ->instagram_url ?? "instagram.com" }}</span>
                         </div>
                     </div>
 
                     <!-- Right Section - Date, Time and QR -->
-                    <div class="col-4 text-end">
+                    <div class="col-4 wslah-inner text-center">
+                        <div class="wslah-parent">
+                            <i class="fas fa-link" style="margin-right: 8px;"></i>
+                            <span>أغسطس</span>
+                            <p>Wslah Platform</p>
+                        </div>
+                            <div class="cone-desc" style="height: 24% !important; margin-top:auto">
+                            <div>
+                                <p></p>
+                                <p class="en_caption"></p>
+                                <hr />
+                                <p class="it">
+
+                                </p>
+                            </div>
+                        </div>
                         <!-- Date in Arabic -->
-                        <div class="arabic-date" style="font-size: 0.9rem; margin-bottom: 5px;" id="live_datetime_ar">
+                        <div class="arabic-date text-center" style="font-size: 0.9rem; margin-bottom: 5px;" id="live_datetime_ar">
                             السبت ٩ أغسطس ٢٠٢٤
                         </div>
 
@@ -565,12 +583,12 @@
                         </div>
 
                         <!-- QR Code Icon -->
-                        <div style="display: flex; justify-content: flex-end; align-items: center;">
+                        {{-- <div style="display: flex; justify-content: flex-end; align-items: center;">
                             <div class="qr-badge">
                                 <i class="fas fa-qrcode" style="font-size: 1.2rem;"></i>
                                 <span>منصة رقمية</span>
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>

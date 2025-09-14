@@ -25,7 +25,7 @@ class InstagramController extends Controller
         //     'pages_manage_engagement',
         //     'pages_manage_metadata'
         // ];
-          $permissions = [
+        $permissions = [
             'instagram_basic',
             'pages_show_list',
             'instagram_manage_comments',
@@ -44,41 +44,37 @@ class InstagramController extends Controller
 
     public function sotry_seting_update(Request $request)
     {
-        Restaurant::where('user_id',auth()->id())->update([
-            'animation_type'=>$request->animation_type,
-            'number_posts'=>$request->number_posts,
-            'animation_duration'=>$request->animation_duration=='0'?1:$request->animation_duration,
+        Restaurant::where('user_id', auth()->id())->update([
+            'animation_type' => $request->animation_type,
+            'number_posts' => $request->number_posts,
+            'animation_duration' => $request->animation_duration == '0' ? 1 : $request->animation_duration,
         ]);
         $request->session()->flash('Success', __('system.messages.updated', ['model' => __('system.restaurants.title')]));
-        try{
+        try {
             $this->instagramAccounts();
-        }
-        catch(\Exception $e){
-
+        } catch (\Exception $e) {
         }
         return redirect(url('environment/instagram-story'));
     }
     public function disconnect(Request $request)
     {
-        Restaurant::where('user_id',auth()->id())->update([
-            'instagram_token'=>$request->animation_type
+        Restaurant::where('user_id', auth()->id())->update([
+            'instagram_token' => $request->animation_type
         ]);
-        InstagramStory::where('user_id',auth()->id())->delete();
+        InstagramStory::where('user_id', auth()->id())->delete();
         $request->session()->flash('Success', __('system.messages.disconnected'));
-        try{
+        try {
             $this->instagramAccounts();
-        }
-        catch(\Exception $e){
-
+        } catch (\Exception $e) {
         }
         return redirect(url('environment/instagram-story'));
     }
     public function sotry_seting()
     {
-        $restaurant=Restaurant::where('user_id',auth()->id())->first();
-          return view('instagram.story.story_setting')->with([
-            'restaurant'=>$restaurant,
-            'rest'=>$restaurant
+        $restaurant = Restaurant::where('user_id', auth()->id())->first();
+        return view('instagram.story.story_setting')->with([
+            'restaurant' => $restaurant,
+            'rest' => $restaurant
         ]);
     }
     public function delete_multiple(Request $request)
@@ -111,7 +107,6 @@ class InstagramController extends Controller
                 'status' => 'error',
                 'message' => 'No stories found to delete.',
             ], 404);
-
         } catch (\Exception $e) {
             // Handle unexpected errors
             return response()->json([
@@ -124,12 +119,12 @@ class InstagramController extends Controller
 
     public function slider()
     {
-        $restaurant=Restaurant::where('user_id',auth()->id())->first();
-        $restaurant->animation_type=request('animation_type');
-        $restaurant->animation_duration=request('animation_duration');
-          return view('instagram.story.slider')->with([
-            'rest'=>$restaurant,
-            'number_of_posts'=>request('number_of_posts')
+        $restaurant = Restaurant::where('user_id', auth()->id())->first();
+        $restaurant->animation_type = request('animation_type');
+        $restaurant->animation_duration = request('animation_duration');
+        return view('instagram.story.slider')->with([
+            'rest' => $restaurant,
+            'number_of_posts' => request('number_of_posts')
         ]);
     }
     public function sliderAjax(Request $request)
@@ -248,37 +243,37 @@ class InstagramController extends Controller
     }
     public function sotry_history()
     {
-        $stories=InstagramStory::where('user_id',auth()->user()->id)
-        ->orderBy('updated_at', 'desc')
+        $stories = InstagramStory::where('user_id', auth()->user()->id)
+            ->orderBy('updated_at', 'desc')
             ->get();
-          return view('instagram.story.story_history')->with(['stories'=>$stories]);
+        return view('instagram.story.story_history')->with(['stories' => $stories]);
     }
     public function exchangeToken($user_id)
     {
         $client_id = config('services.fb.app_id');
         $client_secret = config('services.fb.secret');
-        $restaurant=Restaurant::where('user_id',$user_id)->first();
+        $restaurant = Restaurant::where('user_id', $user_id)->first();
         $short_lived_token = $restaurant->instagram_token;
-           // Exchange short-lived token for a long-lived token
-            $long_lived_url = "https://graph.facebook.com/v10.0/oauth/access_token?"
+        // Exchange short-lived token for a long-lived token
+        $long_lived_url = "https://graph.facebook.com/v10.0/oauth/access_token?"
             . "grant_type=fb_exchange_token"
             . "&client_id={$client_id}"
             . "&client_secret={$client_secret}"
             . "&fb_exchange_token={$short_lived_token}";
 
-            $ch = curl_init($long_lived_url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            $long_lived_response = curl_exec($ch);
-            curl_close($ch);
+        $ch = curl_init($long_lived_url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $long_lived_response = curl_exec($ch);
+        curl_close($ch);
 
-            // Decode the long-lived token response
-            $long_lived_data = json_decode($long_lived_response, true);
-            $long_lived_token = $long_lived_data['access_token'];
-            dump( $long_lived_token);
-            Restaurant::where('user_id', $user_id)->update([
-                'instagram_token' => $long_lived_token
-            ]);
-            $long_lived_token = $long_lived_data['access_token'];
+        // Decode the long-lived token response
+        $long_lived_data = json_decode($long_lived_response, true);
+        $long_lived_token = $long_lived_data['access_token'];
+        dump($long_lived_token);
+        Restaurant::where('user_id', $user_id)->update([
+            'instagram_token' => $long_lived_token
+        ]);
+        $long_lived_token = $long_lived_data['access_token'];
     }
 
     public function callback()
@@ -316,16 +311,14 @@ class InstagramController extends Controller
         // Decode the response
         $response_data = json_decode($response, true);
 
-        Restaurant::where('user_id',auth()->user()->id)->update([
-            'instagram_token'=>$response_data['access_token'],
-            'fb_user'=>json_encode($this->userInfo($response_data['access_token']))
+        Restaurant::where('user_id', auth()->user()->id)->update([
+            'instagram_token' => $response_data['access_token'],
+            'fb_user' => json_encode($this->userInfo($response_data['access_token']))
         ]);
-        $request->session()->flash('Success', __('system.messages.change_success_message', ['model' =>"Successfully Connected"]));
-        try{
+        $request->session()->flash('Success', __('system.messages.change_success_message', ['model' => "Successfully Connected"]));
+        try {
             $this->instagramAccounts();
-        }
-        catch(\Exception $e){
-
+        } catch (\Exception $e) {
         }
         return redirect(url('instagram/story-setting'));
     }
@@ -341,12 +334,11 @@ class InstagramController extends Controller
         $endpoint = '/me?fields=id,name';
 
         return $instagram->get($endpoint);
-
     }
-    public function getIstagramAccount($token,$page_id,$user_id)
+    public function getIstagramAccount($token, $page_id, $user_id)
     {
 
-        $access_token =$token; // From previous step
+        $access_token = $token; // From previous step
 
         // Get connected Instagram account
         $ch = curl_init("https://graph.facebook.com/v19.0/{$page_id}?fields=connected_instagram_account&access_token={$access_token}");
@@ -357,10 +349,12 @@ class InstagramController extends Controller
 
         $instagram_data = json_decode($response, true);
 
-        $ig_user_id = $instagram_data['connected_instagram_account']['id'];
-        $this->getInstagramStories($ig_user_id,$token,$user_id);
+        // $ig_user_id = $instagram_data['connected_instagram_account']['id'];
+        $ig_user_id = $instagram_data['id'];
+        $this->getInstagramStories($ig_user_id, $token, $user_id);
     }
-    public function getInstagramReels($ig_user_id,$access_token,$user_id){
+    public function getInstagramReels($ig_user_id, $access_token, $user_id)
+    {
 
         $ch = curl_init("https://graph.facebook.com/v19.0/{$ig_user_id}/media?fields=id,media_type,media_url,caption,timestamp&access_token={$access_token}");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -370,32 +364,32 @@ class InstagramController extends Controller
 
         $media = json_decode($response, true);
         // Filter for Reels (Reels are 'VIDEO' type with additional checks)
-        $reels = array_filter($media['data'], function($item) {
+        $reels = array_filter($media['data'], function ($item) {
             return $item['media_type'] === 'VIDEO'; // Reels are returned as 'VIDEO'
         });
-        $this->saveReelsToDatabase($reels['data'],$user_id);
-
+        $this->saveReelsToDatabase($reels['data'], $user_id);
     }
-    public function saveReelsToDatabase($data,$user_id) {
-     foreach( $data as $item)
-     {
-        InstagramStory::updateOrCreate(['insta_story_id'=>$item['id'],'user_id'=>$user_id],
-        [
-            'insta_story_id'=>$item['id'],
-            'user_id'=>$user_id,
-            'payload'=>json_encode($item),
-            'created_at'=>Carbon::parse($item['timestamp'])->format('Y-m-d H:i:s'),
-            'updated_at'=>Carbon::parse($item['timestamp'])->format('Y-m-d H:i:s')
-            ]
-     );
-     }
+    public function saveReelsToDatabase($data, $user_id)
+    {
+        foreach ($data as $item) {
+            InstagramStory::updateOrCreate(
+                ['insta_story_id' => $item['id'], 'user_id' => $user_id],
+                [
+                    'insta_story_id' => $item['id'],
+                    'user_id' => $user_id,
+                    'payload' => json_encode($item),
+                    'created_at' => Carbon::parse($item['timestamp'])->format('Y-m-d H:i:s'),
+                    'updated_at' => Carbon::parse($item['timestamp'])->format('Y-m-d H:i:s')
+                ]
+            );
+        }
     }
-    public function getInstagramStories($ig_user_id, $access_token,$user_id) {
-        $res=Restaurant::where('user_id',$user_id)->first();
-        $numer_of_posts=10;
-        if(!empty($res->number_posts) && $res->number_posts>0)
-        {
-            $numer_of_posts=$res->number_posts;
+    public function getInstagramStories($ig_user_id, $access_token, $user_id)
+    {
+        $res = Restaurant::where('user_id', $user_id)->first();
+        $numer_of_posts = 10;
+        if (!empty($res->number_posts) && $res->number_posts > 0) {
+            $numer_of_posts = $res->number_posts;
         }
         // Limit to 10 stories
         $url = "https://graph.facebook.com/v19.0/{$ig_user_id}/stories?fields=id,media_type,media_url,thumbnail_url,timestamp&limit={$numer_of_posts}&access_token={$access_token}";
@@ -411,58 +405,76 @@ class InstagramController extends Controller
         // Decode the response
         $stories = json_decode($response, true);
 
-        $this->saveReelsToDatabase($stories['data'],$user_id);
+        $this->saveReelsToDatabase($stories['data'], $user_id);
     }
-    public function instagramAccounts($user_id=null)
+    public function instagramAccounts($user_id = null)
     {
-        if($user_id==null)
-        {
-            $user_id=auth()->user()->id;
+
+        if ($user_id == null) {
+            $user_id = auth()->user()->id;
         }
-        $restaurant=Restaurant::where('user_id',$user_id)->first();
+        $restaurant = Restaurant::where('user_id', $user_id)->first();
         $token = $restaurant->instagram_token;
         $access_token = $token; // From previous step
         $ch = curl_init("https://graph.facebook.com/v10.0/me/accounts?access_token=$access_token");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
+        // $response = curl_exec($ch);
+        // curl_close($ch);
+        // $pages = json_decode($response, true);
         $response = curl_exec($ch);
         curl_close($ch);
-
         $pages = json_decode($response, true);
-        $page_access_token=$pages['data'][0]['access_token'];
-        $page_id=$pages['data'][0]['id'];
-        $this->getIstagramAccount($page_access_token,$page_id,$user_id);
+
+        if (isset($pages['error'])) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $pages['error']['message'],
+                'code' => $pages['error']['code']
+            ], 429);
+        }
+
+
+        $page_access_token = $pages['data'][0]['access_token'];
+        $page_id = $pages['data'][0]['id'];
+        $this->getIstagramAccount($page_access_token, $page_id, $user_id);
     }
     public function instagramAccountsFetchStoriesJob()
     {
-       $restaurants = Restaurant::all();
-       foreach($restaurants as $restaurant)
-       {
-        try{
-            $shouldRefresh = true;
-            if ($restaurant->last_refresh_time) {
-                $minutesSinceLastRefresh = now()->diffInMinutes($restaurant->last_refresh_time);
-                $shouldRefresh = $minutesSinceLastRefresh >= $restaurant->refresh_time;
-            }
+        $restaurants = Restaurant::all();
+        foreach ($restaurants as $restaurant) {
+            try {
+                $shouldRefresh = true;
+                if ($restaurant->last_refresh_time) {
+                    $minutesSinceLastRefresh = now()->diffInMinutes($restaurant->last_refresh_time);
+                    $shouldRefresh = $minutesSinceLastRefresh >= $restaurant->refresh_time;
+                }
 
-            if ($shouldRefresh) {
-                $this->instagramAccounts($restaurant->user_id);
+                // if ($shouldRefresh) {
+                $result = $this->instagramAccounts($restaurant->user_id);
+                if ($result instanceof \Illuminate\Http\JsonResponse && $result->getData()->status === 'error') {
+                    \Log::error('Instagram error for restaurant ' . $restaurant->id . ': ' . $result->getData()->message);
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => $result->getData()->message,
+                        'code' => $result->getData()->code
+                    ], 429);
+                }
                 $restaurant->update(['last_refresh_time' => now()]);
+                // }
+            } catch (\Exception $e) {
             }
-        } catch(\Exception $e) {
-
         }
-       }
     }
     public function instagramAccountsExchangeTokensJob()
     {
-       $res= Restaurant::all();
-       foreach($res as $item)
-       {
-        try{
-            $this->exchangeToken($item->user_id);
-        }catch(\Exception $e){}
-       }
+        $res = Restaurant::all();
+        foreach ($res as $item) {
+            try {
+                $this->exchangeToken($item->user_id);
+            } catch (\Exception $e) {
+            }
+        }
     }
 
     public function cleanupStories()
@@ -480,5 +492,4 @@ class InstagramController extends Controller
             ], 500);
         }
     }
-
 }
