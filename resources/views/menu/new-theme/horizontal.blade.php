@@ -725,7 +725,7 @@
         }
 
         #sequential-video.fading {
-            opacity: 0.3;
+            /* opacity: 0.3; */
         }
 
         #video-fallback {
