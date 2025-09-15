@@ -393,6 +393,34 @@
             animation-name: zoomInLeft;
         }
 
+        .animate__flash {
+            animation-name: flash;
+        }
+
+        .animate__pulse {
+            animation-name: pulse;
+        }
+
+        .animate__shake {
+            animation-name: shake;
+        }
+
+        .animate__swing {
+            animation-name: swing;
+        }
+
+        .animate__tada {
+            animation-name: tada;
+        }
+
+        .animate__wobble {
+            animation-name: wobble;
+        }
+
+        .animate__jello {
+            animation-name: jello;
+        }
+
         /* Animation Keyframes */
         @keyframes fadeInUp {
             from {
@@ -568,6 +596,133 @@
                 transform: scale3d(1, 1, 1) translate3d(0, 0, 0);
             }
         }
+
+        /* Flash Animation */
+        @keyframes flash {
+            from, 50%, to {
+                opacity: 1;
+            }
+            25%, 75% {
+                opacity: 0;
+            }
+        }
+
+        /* Pulse Animation */
+        @keyframes pulse {
+            from {
+                transform: scale3d(1, 1, 1);
+            }
+            50% {
+                transform: scale3d(1.05, 1.05, 1.05);
+            }
+            to {
+                transform: scale3d(1, 1, 1);
+            }
+        }
+
+        /* Shake Animation */
+        @keyframes shake {
+            from, to {
+                transform: translate3d(0, 0, 0);
+            }
+            10%, 30%, 50%, 70%, 90% {
+                transform: translate3d(-10px, 0, 0);
+            }
+            20%, 40%, 60%, 80% {
+                transform: translate3d(10px, 0, 0);
+            }
+        }
+
+        /* Swing Animation */
+        @keyframes swing {
+            20% {
+                transform: rotate3d(0, 0, 1, 15deg);
+            }
+            40% {
+                transform: rotate3d(0, 0, 1, -10deg);
+            }
+            60% {
+                transform: rotate3d(0, 0, 1, 5deg);
+            }
+            80% {
+                transform: rotate3d(0, 0, 1, -5deg);
+            }
+            to {
+                transform: rotate3d(0, 0, 1, 0deg);
+            }
+        }
+
+        /* Tada Animation */
+        @keyframes tada {
+            from {
+                transform: scale3d(1, 1, 1);
+            }
+            10%, 20% {
+                transform: scale3d(0.9, 0.9, 0.9) rotate3d(0, 0, 1, -3deg);
+            }
+            30%, 50%, 70%, 90% {
+                transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, 3deg);
+            }
+            40%, 60%, 80% {
+                transform: scale3d(1.1, 1.1, 1.1) rotate3d(0, 0, 1, -3deg);
+            }
+            to {
+                transform: scale3d(1, 1, 1);
+            }
+        }
+
+        /* Wobble Animation */
+        @keyframes wobble {
+            from {
+                transform: translate3d(0, 0, 0);
+            }
+            15% {
+                transform: translate3d(-25%, 0, 0) rotate3d(0, 0, 1, -5deg);
+            }
+            30% {
+                transform: translate3d(20%, 0, 0) rotate3d(0, 0, 1, 3deg);
+            }
+            45% {
+                transform: translate3d(-15%, 0, 0) rotate3d(0, 0, 1, -3deg);
+            }
+            60% {
+                transform: translate3d(10%, 0, 0) rotate3d(0, 0, 1, 2deg);
+            }
+            75% {
+                transform: translate3d(-5%, 0, 0) rotate3d(0, 0, 1, -1deg);
+            }
+            to {
+                transform: translate3d(0, 0, 0);
+            }
+        }
+
+        /* Jello Animation */
+        @keyframes jello {
+            from, 11.1%, to {
+                transform: translate3d(0, 0, 0);
+            }
+            22.2% {
+                transform: skewX(-12.5deg) skewY(-12.5deg);
+            }
+            33.3% {
+                transform: skewX(6.25deg) skewY(6.25deg);
+            }
+            44.4% {
+                transform: skewX(-3.125deg) skewY(-3.125deg);
+            }
+            55.5% {
+                transform: skewX(1.5625deg) skewY(1.5625deg);
+            }
+            66.6% {
+                transform: skewX(-0.78125deg) skewY(-0.78125deg);
+            }
+            77.7% {
+                transform: skewX(0.390625deg) skewY(0.390625deg);
+            }
+            88.8% {
+                transform: skewX(-0.1953125deg) skewY(-0.1953125deg);
+            }
+        }
     </style>
 </head>
 <body class="{{ $rest->custom_background ? 'custom-background' : '' }}">
@@ -729,7 +884,7 @@
             }
 
             console.log('QCSlider not found, attempting to load...');
-            
+
             // Try to load the script
             const script = document.createElement('script');
             script.src = "{{ asset('qcslider.jquery.js') }}?v=" + Date.now();
@@ -752,7 +907,7 @@
         // Robust QCSlider initialization with retry logic and fallback
         function initQCSlider(element, retryCount = 0) {
             const maxRetries = 5;
-            
+
             if (typeof $.fn.QCslider === 'function') {
                 try {
                     element.QCslider({
@@ -794,7 +949,7 @@
                     videos.hide();
                     const videoLi = videos.eq(currentVideo);
                     const videoUrl = videoLi.data('video');
-                    
+
                     // Create or update video element
                     let videoElement = videoLi.find('video');
                     if (videoElement.length === 0) {
@@ -803,17 +958,17 @@
                         </video>`);
                         videoLi.html(videoElement);
                     }
-                    
+
                     videoLi.show();
                     console.log('Simple slider showing video:', currentVideo + 1, 'of', videos.length);
-                    
+
                     currentVideo = (currentVideo + 1) % videos.length;
                 }
 
                 // Start the simple slider
                 showNextVideo();
                 setInterval(showNextVideo, duration);
-                
+
                 $('#fallback-status').text('Videos playing (simple mode)');
                 console.log('Simple video slider initialized with', videos.length, 'videos');
                 return true;
@@ -1080,10 +1235,11 @@
         let animation_time = {{ $animation_timer ?? 10000 }};
         let currentAnimation = '{{ $rest->animation ?? "fadeInUp" }}';
 
-        // Animation classes array
+        // Animation classes array - Enhanced with more animation types
         const animationClasses = [
             'fadeInUp', 'fadeInDown', 'fadeInLeft', 'fadeInRight', 'zoomIn', 'bounceIn',
-            'slideInLeft', 'slideInRight', 'rotateIn', 'flipInX', 'flipInY', 'zoomInLeft'
+            'slideInLeft', 'slideInRight', 'rotateIn', 'flipInX', 'flipInY', 'zoomInLeft',
+            'flash', 'pulse', 'shake', 'swing', 'tada', 'wobble', 'jello'
         ];
 
         // Fetch products from server
@@ -1112,6 +1268,7 @@
 
             for (let i = startIndex; i <= endIndex && i < products.length; i++) {
                 const product = products[i];
+                // Use current animation from API or fallback to random
                 const animationClass = currentAnimation || animationClasses[Math.floor(Math.random() * animationClasses.length)];
 
                 if (product) {
@@ -1123,7 +1280,7 @@
                         is_display
                     } = product;
 
-                    const currencySymbol = '{{ config('app.currency_symbol') ?? '$' }}';
+                    const currencySymbol = rest.currency || '{{ config('app.currency_symbol') ?? '$' }}';
                     const imgSrc = food_image ? `/storage/${food_image}` : '';
 
                     const priceHTML = is_display === 1 && price ?
@@ -1132,8 +1289,9 @@
                         `<div class="product-name">${name}</div>` : '';
 
                     const itemHTML = `
-                        <div id="productitem-${id}" class="product-item animate__animated animate__${animationClass} ${!food_image ? 'no-image' : ''}">
-                            ${food_image ? `<img src="${imgSrc}" alt="${name || 'Product'}" />` : ''}
+                        <div id="productitem-${id}" class="product-item animate__animated animate__${animationClass} ${!food_image ? 'no-image' : ''}"
+                             data-animation="${animationClass}" data-product-id="${id}">
+                            ${food_image ? `<img src="${imgSrc}" alt="${name || 'Product'}" onerror="this.parentElement.classList.add('no-image')" />` : ''}
                             <div class="card-overlay">
                                 ${nameHTML}
                                 ${priceHTML}
@@ -1142,6 +1300,14 @@
                     `;
 
                     itemsContainer.insertAdjacentHTML('beforeend', itemHTML);
+
+                    // Remove animation class after animation completes to allow re-animation
+                    setTimeout(() => {
+                        const productElement = document.getElementById(`productitem-${id}`);
+                        if (productElement) {
+                            productElement.classList.remove('animate__animated', `animate__${animationClass}`);
+                        }
+                    }, 1000);
                 }
             }
         }
@@ -1174,10 +1340,33 @@
             animateAndSchedule();
         }
 
+        // Apply immediate animation change to current products
+        function applyImmediateAnimationChange() {
+            const productItems = document.querySelectorAll('.product-item');
+            productItems.forEach((item, index) => {
+                // Remove existing animation classes
+                item.className = item.className.replace(/animate__\w+/g, '');
+
+                // Add new animation class with staggered delay for smooth transition
+                setTimeout(() => {
+                    item.classList.add('animate__animated', `animate__${currentAnimation}`);
+
+                    // Remove animation class after animation completes
+                    setTimeout(() => {
+                        item.classList.remove('animate__animated', `animate__${currentAnimation}`);
+                    }, 1000);
+                }, index * 100); // Stagger animations by 100ms
+            });
+        }
+
         // Update animation interval with dynamic timing
         function updateAnimationInterval(newAnimationTime) {
             clearInterval(intervalId);
             animation_time = newAnimationTime;
+
+            // Update CSS animation duration variable based on animation timing
+            const animationDuration = Math.min(Math.max(newAnimationTime / 10, 500), 2000); // Between 0.5s and 2s
+            document.documentElement.style.setProperty('--animation-duration', `${animationDuration}ms`);
 
             // Restart animation cycle with new timing
             if (products.length > 0) {
@@ -1185,29 +1374,44 @@
             }
 
             console.log('Animation interval updated to:', animation_time, 'ms');
+            console.log('Animation duration set to:', animationDuration, 'ms');
         }
 
         // Dynamic data fetching with animation support
         let animationTime = parseInt($('#animation_timer').val());
+        let lastAnimationUpdate = Date.now();
 
         async function fetchDynamicData() {
             try {
                 const response = await fetch("/get_dynamic_data?uuid={{ $rest->uuid }}");
                 const data = await response.json();
 
-                // Update animation timing
+                // Update animation timing with validation
                 const newAnimationTime = data.animation_timer;
-                animationTime = parseInt($('#animation_timer').val());
-                if (newAnimationTime !== animationTime) {
+                const currentAnimationTime = parseInt($('#animation_timer').val());
+
+                if (newAnimationTime && newAnimationTime !== currentAnimationTime && newAnimationTime >= 1000) {
                     $('#animation_timer').val(newAnimationTime);
+                    animationTime = newAnimationTime;
                     updateAnimationInterval(newAnimationTime);
-                    console.log('Animation timer updated to:', newAnimationTime);
+                    console.log('Animation timer updated to:', newAnimationTime, 'ms');
                 }
 
-                // Update animation type
+                // Update animation type with validation
                 if (data.animation && data.animation !== currentAnimation) {
-                    currentAnimation = data.animation;
-                    console.log('Animation type updated to:', currentAnimation);
+                    // Validate animation type exists in our classes array
+                    if (animationClasses.includes(data.animation)) {
+                        currentAnimation = data.animation;
+                        lastAnimationUpdate = Date.now();
+                        console.log('Animation type updated to:', currentAnimation);
+
+                        // Apply immediate animation change if products are being displayed
+                        if (products.length > 0) {
+                            applyImmediateAnimationChange();
+                        }
+                    } else {
+                        console.warn('Unknown animation type received:', data.animation);
+                    }
                 }
 
             } catch (error) {
@@ -1257,6 +1461,44 @@
             // Fetch dynamic data
             fetchDynamicData();
             setInterval(fetchDynamicData, animationTime);
+
+            // Debug: Log animation system status
+            console.log('Animation System Initialized:');
+            console.log('- Current Animation:', currentAnimation);
+            console.log('- Animation Timer:', animationTime, 'ms');
+            console.log('- Available Animations:', animationClasses);
+
+            // Test animation validation
+            console.log('- Flash Animation Available:', animationClasses.includes('flash'));
+            console.log('- Animation Classes Count:', animationClasses.length);
+
+            // Expose test functions to global scope for debugging
+            window.testAnimation = function(animationType, duration = 10000) {
+                if (animationClasses.includes(animationType)) {
+                    console.log(`Testing animation: ${animationType} with duration: ${duration}ms`);
+                    currentAnimation = animationType;
+                    updateAnimationInterval(duration);
+                    return `Animation test started: ${animationType}`;
+                } else {
+                    console.error(`Animation type "${animationType}" not available. Available types:`, animationClasses);
+                    return `Error: Animation type "${animationType}" not found`;
+                }
+            };
+
+            window.testFlashAnimation = function() {
+                return window.testAnimation('flash', 5000);
+            };
+
+            window.getAnimationStatus = function() {
+                return {
+                    currentAnimation,
+                    animationTime,
+                    availableAnimations: animationClasses,
+                    productsCount: products.length
+                };
+            };
+
+            console.log('Test functions available: testAnimation(type, duration), testFlashAnimation(), getAnimationStatus()');
 
             // Auto-play first video if available
             setTimeout(() => {
