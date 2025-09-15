@@ -972,14 +972,14 @@
                                 <!-- Dynamic Caption Display -->
                                 <div class="dynamic-caption-container">
                                     <!-- Arabic Caption -->
-                                    <div class="caption-ar" id="caption-ar">
+                                    {{-- <div class="caption-ar" id="caption-ar">
                                         {{ $rest->caption_ar ?? 'مــعـاك للأبـد' }}
                                     </div>
 
                                     <!-- English Caption -->
                                     <div class="caption-en" id="caption-en">
                                         {{ $rest->caption_en ?? 'With you forever' }}
-                                    </div>
+                                    </div> --}}
 
                                     <!-- Restaurant Name -->
                                     @if(!empty($rest->name))

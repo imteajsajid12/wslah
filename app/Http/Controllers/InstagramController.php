@@ -351,6 +351,7 @@ class InstagramController extends Controller
 
         // $ig_user_id = $instagram_data['connected_instagram_account']['id'];
         $ig_user_id = $instagram_data['id'];
+
         $this->getInstagramStories($ig_user_id, $token, $user_id);
     }
     public function getInstagramReels($ig_user_id, $access_token, $user_id)
@@ -386,7 +387,9 @@ class InstagramController extends Controller
     }
     public function getInstagramStories($ig_user_id, $access_token, $user_id)
     {
+        dd($ig_user_id, $access_token, $user_id);
         $res = Restaurant::where('user_id', $user_id)->first();
+
         $numer_of_posts = 10;
         if (!empty($res->number_posts) && $res->number_posts > 0) {
             $numer_of_posts = $res->number_posts;
@@ -404,6 +407,7 @@ class InstagramController extends Controller
 
         // Decode the response
         $stories = json_decode($response, true);
+        dd($response);
 
         $this->saveReelsToDatabase($stories['data'], $user_id);
     }
@@ -433,6 +437,8 @@ class InstagramController extends Controller
                 'code' => $pages['error']['code']
             ], 429);
         }
+
+
 
 
         $page_access_token = $pages['data'][0]['access_token'];

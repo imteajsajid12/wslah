@@ -46,7 +46,7 @@ class MenuController extends Controller
     {
         $uuid = $request->query()['store_id'];
 
-        $rest = Restaurant::where('uuid',$uuid)->first();
+        $rest = Restaurant::where('uuid', $uuid)->first();
 
         if (empty($rest)) {
             abort(404);
@@ -75,7 +75,7 @@ class MenuController extends Controller
 
 
         $intro_video_url = Video::where('restaurant_id', $video_id)->orderBy('sort_order')->get();
-        $stories_count=InstagramStory::where('user_id',$rest->user_id)->count();
+        $stories_count = InstagramStory::where('user_id', $rest->user_id)->count();
 
         // Determine which theme to use
         $theme_style = $rest->theme_style ?? 'default';
@@ -95,7 +95,7 @@ class MenuController extends Controller
 
             'intro_video_url' => $intro_video_url,
             'script_code'    => $rest->script_code,
-            'stories_count'=>$stories_count,
+            'stories_count' => $stories_count,
             'rest' => $rest,
             'is_vertical' => $rest->vertical_mode,
             'animation_timer' => (int)$rest->animation_timer * 1000,
@@ -136,11 +136,11 @@ class MenuController extends Controller
         }
         if (isset($request->query()['store_id']) || isset($request->store_id)) {
             $rest = Restaurant::find($request->query()['store_id']);
-        }else{
+        } else {
             $rest = Restaurant::query()->where('uuid', $uuid)->first();
         }
 
-       // dd($rest);
+        // dd($rest);
 
         if (empty($rest)) {
             abort(404);
@@ -177,7 +177,7 @@ class MenuController extends Controller
         }
 
         $intro_video_url = Video::where('restaurant_id', $video_id)->orderBy('sort_order')->get();
-        $stories_count=InstagramStory::where('user_id',$rest->user_id)->count();
+        $stories_count = InstagramStory::where('user_id', $rest->user_id)->count();
 
         // Determine which theme to use
         $theme_style = $rest->theme_style ?? 'default';
@@ -197,14 +197,30 @@ class MenuController extends Controller
 
             'intro_video_url' => $intro_video_url,
             'script_code'    => $rest->script_code,
-            'stories_count'=>$stories_count,
+            'stories_count' => $stories_count,
             'rest' => $rest,
             'is_vertical' => $rest->vertical_mode,
             'animation_timer' => (int)$rest->animation_timer * 1000,
             'font_color' => $fontColor,
-            'primary_color'=> $primaryColor,
+            'primary_color' => $primaryColor,
         ]);
     }
+
+    // public function getVideoUrls(Request $request)
+    // {
+    //     $uuidData = Restaurant::where('uuid', $request->uuid)->first();
+    //     $uuid = $uuidData->id;
+    //     $intro_video_url = Video::where('restaurant_id', $uuid)->orderBy('sort_order')->get();
+
+    //     // Check if request expects JSON (for sequential video system)
+    //     if ($request->expectsJson() || $request->ajax()) {
+    //         return response()->json($intro_video_url);
+    //     }
+
+    //     // Return view for QCSlider system
+    //     return view('menu.partials.video-slider')->with('intro_video_url', $intro_video_url);
+    // }
+
 
     public function getVideoUrls(Request $request)
     {
@@ -212,13 +228,9 @@ class MenuController extends Controller
         $uuid = $uuidData->id;
         $intro_video_url = Video::where('restaurant_id', $uuid)->orderBy('sort_order')->get();
 
-        // Check if request expects JSON (for sequential video system)
-        if ($request->expectsJson() || $request->ajax()) {
-            return response()->json($intro_video_url);
-        }
-
-        // Return view for QCSlider system
         return view('menu.partials.video-slider')->with('intro_video_url', $intro_video_url);
+
+        return $intro_video_url;
     }
     public function getDynamicData(Request $request)
     {
