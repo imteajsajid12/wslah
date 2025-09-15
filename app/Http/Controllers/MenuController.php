@@ -12,6 +12,7 @@ use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 
 
@@ -224,13 +225,61 @@ class MenuController extends Controller
 
     public function getVideoUrls(Request $request)
     {
-        $uuidData = Restaurant::where('uuid', $request->uuid)->first();
-        $uuid = $uuidData->id;
-        $intro_video_url = Video::where('restaurant_id', $uuid)->orderBy('sort_order')->get();
+        try {
+            // Validate UUID parameter
+            if (!$request->has('uuid') || empty($request->uuid)) {
+                return response()->json(['error' => 'UUID parameter is required'], 400);
+            }
 
-        return view('menu.partials.video-slider')->with('intro_video_url', $intro_video_url);
+            // Find restaurant by UUID
+            $restaurant = Restaurant::where('uuid', $request->uuid)->first();
 
-        return $intro_video_url;
+            if (!$restaurant) {
+                return response()->json(['error' => 'Restaurant not found'], 404);
+            }
+
+            // Get videos for this restaurant
+            $intro_video_url = Video::where('restaurant_id', $restaurant->id)
+                ->orderBy('sort_order')
+                ->get();
+
+            // Log for debugging
+            Log::info('Video URLs requested', [
+                'restaurant_id' => $restaurant->id,
+                'uuid' => $request->uuid,
+                'video_count' => $intro_video_url->count()
+            ]);
+
+            // Only return JSON if explicitly requested with 'json' parameter
+            // This is for the sequential video system fallback
+            if ($request->has('json') && $request->get('json') == '1') {
+                return response()->json([
+                    'success' => true,
+                    'videos' => $intro_video_url,
+                    'count' => $intro_video_url->count(),
+                    'restaurant' => $restaurant->name
+                ]);
+            }
+
+            // Return the video slider view for QCSlider
+            return view('menu.partials.video-slider')->with([
+                'intro_video_url' => $intro_video_url,
+                'restaurant' => $restaurant
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in getVideoUrls', [
+                'error' => $e->getMessage(),
+                'uuid' => $request->uuid ?? 'not provided',
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
+            ]);
+
+            // Return empty slider on error
+            return view('menu.partials.video-slider')->with([
+                'intro_video_url' => collect([]),
+                'restaurant' => null
+            ]);
+        }
     }
     public function getDynamicData(Request $request)
     {

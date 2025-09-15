@@ -387,7 +387,7 @@ class InstagramController extends Controller
     }
     public function getInstagramStories($ig_user_id, $access_token, $user_id)
     {
-        dd($ig_user_id, $access_token, $user_id);
+
         $res = Restaurant::where('user_id', $user_id)->first();
 
         $numer_of_posts = 10;

@@ -114,23 +114,73 @@
             setInterval(loadDynamicData, 30000);
         });
 
-        // Video slider functionality
+        // Video slider functionality - Enhanced Implementation
+        var initialData = null;
+
         function loadVideoSlider() {
             $.ajax({
                 url: '{{ route("loadVideoSlider") }}',
-                method: 'GET',
-                success: function(response) {
-                    $('#ajax-video-slider-container').html(response);
+                type: 'GET',
+                dataType: 'html', // Explicitly request HTML
+                headers: {
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+                },
+                success: function(data) {
+                    // console.log('Video slider data received:', data ? 'Yes' : 'No');
+                    // console.log('Data changed:', initialData !== data);
+
+                    if (initialData === null) {
+                        // Store the initial data and load slider for first time
+                        initialData = data;
+                        $('#ajax-video-slider-container').html(data);
+
+                        // Initialize QCSlider if slider element exists
+                        if ($("#slider").length) {
+                            $("#slider").QCslider({
+                                duration: 7000,
+                            });
+                            console.log('QCSlider initialized on first load');
+                        }
+                    } else if (initialData !== data) {
+                        // Update the view only if the data has changed
+                        console.log('Video slider data changed, updating...');
+                        $('#ajax-video-slider-container').html(data);
+
+                        // Reinitialize QCSlider with new data
+                        if ($("#slider").length) {
+                            $("#slider").QCslider({
+                                duration: 7000,
+                            });
+                            console.log('QCSlider reinitialized with new data');
+                        }
+
+                        // Update the initial data for subsequent comparisons
+                        initialData = data;
+                    }
                 },
                 error: function(xhr, status, error) {
-                    console.log('Error loading video slider:', error);
+                    console.error('Error loading video slider:', {
+                        status: status,
+                        error: error,
+                        response: xhr.responseText
+                    });
+
+                    // Fallback: try to maintain existing content
+                    if ($("#ajax-video-slider-container").is(':empty')) {
+                        $("#ajax-video-slider-container").html('<div class="video-fallback">Loading videos...</div>');
+                    }
                 }
             });
         }
 
-        // Load video slider on page load
+        // Load video slider on page load with auto-refresh
         $(document).ready(function() {
-            loadVideoSlider();
+            loadVideoSlider(); // Initial load
+
+            // Auto-refresh video slider content every 6 seconds
+            setInterval(function() {
+                loadVideoSlider();
+            }, 6 * 1000);
         });
     </script>
 </body>

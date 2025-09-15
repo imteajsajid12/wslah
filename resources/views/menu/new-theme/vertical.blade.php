@@ -6,6 +6,7 @@
     <title>{{ config('app.name') }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ asset('qc.slider.css') }}" rel="stylesheet">
     <style>
         body {
             background: linear-gradient(135deg, #2d5a4a 0%, #1a3d32 100%);
@@ -204,6 +205,62 @@
             height: 100%;
             object-fit: cover;
             border-radius: 15px;
+        }
+
+        /* QCSlider Integration Styles */
+        #ajax-video-slider-container .slider-wrapper {
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        #ajax-video-slider-container .include {
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        #ajax-video-slider-container .include video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+        }
+
+        #ajax-video-slider-container ul#slider {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        #ajax-video-slider-container ul#slider li {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        #ajax-video-slider-container video {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            border-radius: 15px !important;
+        }
+
+        #ajax-video-slider-container ul#slider li video {
+            display: block !important;
+            opacity: 1 !important;
         }
 
         /* Sequential Video Styles */
@@ -609,25 +666,37 @@
                     </div>
                 </div>
 
-                <!-- Video Content - Sequential Video System -->
-                <div class="content-card video-container" id="ajax-video-slider-container">
-                    <!-- Sequential Video Element -->
-                    <video id="sequential-video" autoplay muted style="width: 100%; height: 100%; object-fit: cover; border-radius: 15px; display: none;" class="transition">
-                        <source src="" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
+                <!-- Video Content - QCSlider + Sequential Video System -->
+                <div class="content-card">
+                    <div class="video-container" id="ajax-video-slider-container" style="width: 100%; height: 100%; position: relative; border-radius: 15px; overflow: hidden;">
+                        <!-- Sequential Video Element (Fallback) -->
+                        <video id="sequential-video" autoplay muted style="width: 100%; height: 100%; object-fit: cover; border-radius: 15px; display: none; position: absolute; top: 0; left: 0; z-index: 1;" class="transition">
+                            <source src="" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
 
-                    <!-- Fallback content when no videos -->
-                    <div id="video-fallback" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #4a7c59 0%, #2d5a4a 100%); border-radius: 15px;">
-                        <div style="text-align: center; color: white;">
-                            <i class="fas fa-video" style="font-size: 3rem; margin-bottom: 10px; opacity: 0.7;"></i>
-                            <p style="margin: 0; opacity: 0.8;">{{ $rest->caption_en ?? 'Video Content' }}</p>
+                        <!-- Default Fallback content when no videos -->
+                        <div id="video-fallback" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--primary-color, #4a7c59) 0%, var(--background-color, #2d5a4a) 100%); border-radius: 15px; position: absolute; top: 0; left: 0; z-index: 0;">
+                            <div style="text-align: center; color: white; padding: 20px;">
+                                <div style="animation: pulse 2s infinite;">
+                                    <i class="fas fa-video" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.8;"></i>
+                                </div>
+                                <h3 style="margin: 0 0 10px 0; font-size: 1.5rem; font-weight: bold;">{{ $rest->name ?? 'Restaurant' }}</h3>
+                                <p style="margin: 0; opacity: 0.9; font-size: 1.2rem;">{{ $rest->caption_en ?? 'Loading Videos...' }}</p>
+                                <div style="margin-top: 15px; font-size: 0.9rem; opacity: 0.7;">
+                                    <span id="fallback-status">Connecting to video service...</span>
+                                </div>
+                                @if(config('app.debug'))
+                                <div style="margin-top: 10px;">
+                                    <button onclick="loadVideoSlider(); console.log('Manual video reload triggered');" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8rem;">
+                                        Reload Videos
+                                    </button>
+                                </div>
+                                @endif
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="card-overlay">
-                        <div>{{ $rest->caption_en ?? 'Cold Coffee' }}</div>
-
+                        <!-- QCSlider videos will be dynamically loaded here -->
                     </div>
                 </div>
 
@@ -648,6 +717,113 @@
     <input type="hidden" id="animation_timer" value="{{ $animation_timer ?? 10000 }}">
 
     <script>
+        // Debug: Check script availability
+        console.log('jQuery available:', typeof $ !== 'undefined');
+        console.log('QCSlider available:', typeof $.fn.QCslider === 'function');
+
+        // Ensure QCSlider is loaded
+        function ensureQCSliderLoaded(callback) {
+            if (typeof $.fn.QCslider === 'function') {
+                callback();
+                return;
+            }
+
+            console.log('QCSlider not found, attempting to load...');
+            
+            // Try to load the script
+            const script = document.createElement('script');
+            script.src = "{{ asset('qcslider.jquery.js') }}?v=" + Date.now();
+            script.onload = function() {
+                console.log('QCSlider script loaded successfully');
+                if (typeof $.fn.QCslider === 'function') {
+                    callback();
+                } else {
+                    console.error('QCSlider still not available after loading script');
+                    callback(); // Call anyway to trigger fallback
+                }
+            };
+            script.onerror = function() {
+                console.error('Failed to load QCSlider script');
+                callback(); // Call anyway to trigger fallback
+            };
+            document.head.appendChild(script);
+        }
+
+        // Robust QCSlider initialization with retry logic and fallback
+        function initQCSlider(element, retryCount = 0) {
+            const maxRetries = 5;
+            
+            if (typeof $.fn.QCslider === 'function') {
+                try {
+                    element.QCslider({
+                        duration: 7000,
+                    });
+                    console.log('QCSlider initialized successfully');
+                    return true;
+                } catch (error) {
+                    console.error('Error initializing QCSlider:', error);
+                    return initSimpleVideoSlider(element);
+                }
+            } else if (retryCount < maxRetries) {
+                console.log(`QCSlider not ready, retry ${retryCount + 1}/${maxRetries}`);
+                setTimeout(() => initQCSlider(element, retryCount + 1), 300);
+                return false;
+            } else {
+                console.error('QCSlider failed to load after', maxRetries, 'attempts');
+                console.log('Falling back to simple video slider...');
+                return initSimpleVideoSlider(element);
+            }
+        }
+
+        // Simple video slider fallback when QCSlider fails
+        function initSimpleVideoSlider(element) {
+            try {
+                const videos = element.find('li[data-video]');
+                if (videos.length === 0) {
+                    console.warn('No videos found for simple slider');
+                    return false;
+                }
+
+                let currentVideo = 0;
+                const duration = 7000;
+
+                // Hide all videos initially
+                videos.hide();
+
+                function showNextVideo() {
+                    videos.hide();
+                    const videoLi = videos.eq(currentVideo);
+                    const videoUrl = videoLi.data('video');
+                    
+                    // Create or update video element
+                    let videoElement = videoLi.find('video');
+                    if (videoElement.length === 0) {
+                        videoElement = $(`<video autoplay muted loop style="width: 100%; height: 100%; object-fit: cover;">
+                            <source src="${videoUrl}" type="video/mp4">
+                        </video>`);
+                        videoLi.html(videoElement);
+                    }
+                    
+                    videoLi.show();
+                    console.log('Simple slider showing video:', currentVideo + 1, 'of', videos.length);
+                    
+                    currentVideo = (currentVideo + 1) % videos.length;
+                }
+
+                // Start the simple slider
+                showNextVideo();
+                setInterval(showNextVideo, duration);
+                
+                $('#fallback-status').text('Videos playing (simple mode)');
+                console.log('Simple video slider initialized with', videos.length, 'videos');
+                return true;
+            } catch (error) {
+                console.error('Simple video slider failed:', error);
+                $('#fallback-status').text('All video players failed');
+                return false;
+            }
+        }
+
         // Live date and time update
         function updateDateTime() {
             const now = new Date();
@@ -681,7 +857,119 @@
             }
         }
 
-        // Sequential Video System
+        // QCSlider Video Slider functionality - Enhanced Implementation
+        let initialData = null;
+
+        function loadVideoSlider() {
+            $.ajax({
+                url: "{{ route('loadVideoSlider') }}?uuid={{ $rest->uuid }}",
+                type: 'GET',
+                dataType: 'html', // Explicitly request HTML
+                headers: {
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+                },
+                success: function(data) {
+                    console.log('Video slider data received:', data ? 'Yes' : 'No');
+                    console.log('Data type:', typeof data);
+                    console.log('Data content preview:', typeof data === 'string' ? data.substring(0, 200) + '...' : data);
+                    // console.log('Data changed:', initialData !== data);
+
+                    if (initialData === null) {
+                        // Store the initial data and load slider for first time
+                        initialData = data;
+
+                        // Update fallback status
+                        $('#fallback-status').text('Processing video data...');
+
+                        // Check if we have actual video data
+                        if (data && data.trim() !== '') {
+                            console.log('Video data received, length:', data.length);
+                            $('#ajax-video-slider-container').html(data);
+
+                            // Hide fallback content and show video content
+                            $('#video-fallback').hide();
+                            $('#sequential-video').hide();
+
+                            // Initialize QCSlider with robust loading
+                            setTimeout(function() {
+                                if ($("#slider").length) {
+                                    ensureQCSliderLoaded(function() {
+                                        if (initQCSlider($("#slider"))) {
+                                            console.log('QCSlider initialized on first load with', $("#slider li").length, 'videos');
+                                            $('#fallback-status').text('Videos playing successfully');
+                                        } else {
+                                            console.log('Using fallback video player');
+                                            $('#fallback-status').text('Videos playing (fallback mode)');
+                                        }
+                                    });
+                                } else {
+                                    console.warn('No #slider element found in loaded data');
+                                    $('#fallback-status').text('Video player not found');
+                                }
+                            }, 100);
+                        } else {
+                            // No video data, show fallback
+                            $('#video-fallback').show();
+                            $('#fallback-status').text('No videos available');
+                            console.log('No video data received, showing fallback');
+                        }
+                    } else if (initialData !== data) {
+                        // Update the view only if the data has changed
+                        console.log('Video slider data changed, updating...');
+
+                        if (data && data.trim() !== '') {
+                            $('#ajax-video-slider-container').html(data);
+
+                            // Hide fallback content
+                            $('#video-fallback').hide();
+                            $('#sequential-video').hide();
+
+                            // Reinitialize QCSlider with new data using robust loading
+                            setTimeout(function() {
+                                if ($("#slider").length) {
+                                    ensureQCSliderLoaded(function() {
+                                        if (initQCSlider($("#slider"))) {
+                                            console.log('QCSlider reinitialized with new data');
+                                        } else {
+                                            console.log('Using fallback video player for new data');
+                                        }
+                                    });
+                                }
+                            }, 100);
+                        } else {
+                            // No video data, show fallback
+                            $('#video-fallback').show();
+                        }
+
+                        // Update the initial data for subsequent comparisons
+                        initialData = data;
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading video slider:', {
+                        status: status,
+                        error: error,
+                        response: xhr.responseText,
+                        url: "{{ route('loadVideoSlider') }}?uuid={{ $rest->uuid }}"
+                    });
+
+                    // Show fallback content on error
+                    $('#video-fallback').show();
+                    $('#sequential-video').hide();
+
+                    // Update fallback message based on error type
+                    if (status === 'timeout') {
+                        $('#fallback-status').text('Connection timeout. Retrying...');
+                    } else if (status === 'error') {
+                        $('#fallback-status').text('Network error. Please check connection.');
+                    } else {
+                        $('#fallback-status').text('Error loading videos. Retrying in 6 seconds...');
+                    }
+                }
+            });
+        }
+
+        // Sequential Video System (Fallback)
         var video_count = 0;
         var videos = [];
         var sequentialVideo = document.getElementById("sequential-video");
@@ -690,35 +978,49 @@
         async function fetchVideos1() {
             try {
                 const response = await $.ajax({
-                    url: "{{ url('get_video_urls') }}?uuid={{ $rest->uuid }}",
+                    url: "{{ url('get_video_urls') }}?uuid={{ $rest->uuid }}&json=1",
                     type: "get",
                     data: {},
                 });
 
-                if (response && Array.isArray(response)) {
+                if (response && response.videos && Array.isArray(response.videos)) {
                     // Clear existing videos
                     videos = [];
 
                     // Process video data
-                    response.forEach((video) => {
+                    response.videos.forEach((video) => {
                         videos.push('/storage/' + video.file);
                     });
 
-                    console.log('Videos loaded:', videos.length);
+                    console.log('Sequential videos loaded:', videos.length);
 
-                    // Show/hide elements based on video availability
-                    if (videos.length > 0 && sequentialVideo) {
+                    // Only use sequential video if QCSlider is not working
+                    if (videos.length > 0 && sequentialVideo && !$("#slider").length) {
                         sequentialVideo.style.display = 'block';
                         videoFallback.style.display = 'none';
                         playNextVideo();
                     } else {
+                        // QCSlider is working or no videos, hide sequential
                         if (sequentialVideo) sequentialVideo.style.display = 'none';
-                        videoFallback.style.display = 'flex';
+                    }
+                } else if (response && Array.isArray(response)) {
+                    // Handle old format for backward compatibility
+                    videos = [];
+                    response.forEach((video) => {
+                        videos.push('/storage/' + video.file);
+                    });
+
+                    console.log('Sequential videos loaded (old format):', videos.length);
+
+                    // Only use sequential video if QCSlider is not working
+                    if (videos.length > 0 && sequentialVideo && !$("#slider").length) {
+                        sequentialVideo.style.display = 'block';
+                        videoFallback.style.display = 'none';
+                        playNextVideo();
                     }
                 } else {
-                    console.log('No video data received or invalid format');
+                    console.log('No video data received or invalid format for sequential video');
                     if (sequentialVideo) sequentialVideo.style.display = 'none';
-                    videoFallback.style.display = 'flex';
                 }
             } catch (error) {
                 console.error("Error fetching videos:", error);
@@ -919,7 +1221,23 @@
             updateDateTime();
             setInterval(updateDateTime, 1000);
 
-            // Initialize sequential video system
+            // Load video slider with enhanced functionality (Primary)
+            console.log('Initializing video slider...');
+            loadVideoSlider(); // Initial load
+
+            // Auto-refresh video slider content every 6 seconds
+            setInterval(function() {
+                loadVideoSlider();
+            }, 6 * 1000);
+
+            // Debug: Check if video container exists
+            if ($('#ajax-video-slider-container').length) {
+                console.log('Video container found in DOM');
+            } else {
+                console.error('Video container NOT found in DOM');
+            }
+
+            // Initialize sequential video system (Fallback)
             fetchVideos1();
             refreshVideo();
 
