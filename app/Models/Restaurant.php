@@ -10,7 +10,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Ramsey\Uuid\Uuid;
 
-class Restaurant extends Model implements Searchable {
+class Restaurant extends Model implements Searchable
+{
 
     use HasFactory, Sortable;
 
@@ -73,7 +74,9 @@ class Restaurant extends Model implements Searchable {
         'caption_en',
         'limit_characters',
         'profile_picture',
-        'last_refresh_time'
+        'last_refresh_time',
+
+
     ];
 
     protected $casts = [
@@ -134,8 +137,8 @@ class Restaurant extends Model implements Searchable {
 
     public function adminUser()
     {
-//        $resUser =  RestaurantUser::query()->where('restaurant_id', $this->id)->first();
-//        return User::query()->where('id', $resUser->user_id)->first();
+        //        $resUser =  RestaurantUser::query()->where('restaurant_id', $this->id)->first();
+        //        return User::query()->where('id', $resUser->user_id)->first();
 
         return $this->users()->first();
     }
@@ -182,8 +185,8 @@ class Restaurant extends Model implements Searchable {
 
     public function getLogoUrlAttribute()
     {
-        if(filled($this->attributes))
-        return getFileUrl($this->attributes['logo']);
+        if (filled($this->attributes))
+            return getFileUrl($this->attributes['logo']);
     }
 
     public function getDarkLogoUrlAttribute()
@@ -193,16 +196,14 @@ class Restaurant extends Model implements Searchable {
 
     public function setLogoAttribute($value)
     {
-        if($value != null)
-        {
+        if ($value != null) {
             $this->attributes['logo'] = uploadFile($value, 'logo');
         }
     }
 
     public function setDarkLogoAttribute($value)
     {
-        if($value != null)
-        {
+        if ($value != null) {
             $this->attributes['dark_logo'] = uploadFile($value, 'dark_logo');
         }
     }
@@ -215,8 +216,7 @@ class Restaurant extends Model implements Searchable {
 
     public function setQrDetailsAttribute($value)
     {
-        if(gettype($value) != 'array')
-        {
+        if (gettype($value) != 'array') {
             $value = explode(',', $value);
         }
 
@@ -225,14 +225,13 @@ class Restaurant extends Model implements Searchable {
 
     public function getCoverImageUrlAttribute()
     {
-        if(filled($this->attributes))
-        return getFileUrl($this->attributes['cover_image']);
+        if (filled($this->attributes))
+            return getFileUrl($this->attributes['cover_image']);
     }
 
     public function setCoverImageAttribute($value)
     {
-        if($value != null)
-        {
+        if ($value != null) {
             $this->attributes['cover_image'] = uploadFile($value, 'cover_image');
         }
     }

@@ -188,6 +188,11 @@
             }
         }
 
+        @media (max-width: 840px) {
+            .product-items-container {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
         /* Custom background support */
         .custom-background {
             background-image: url('{{ $rest->custom_background ? asset("storage/" . $rest->custom_background) : "" }}');

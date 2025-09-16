@@ -538,6 +538,7 @@
 
 <div class="row">
     <div class="col-md-4">
+        
         @php($theme_style = $row->theme_style ?? 'default')
         <div class="mb-3 form-group">
             <label class="form-label" for="theme_style">{{ __('Theme Style') }} <span class="text-danger">*</span></label>
@@ -549,51 +550,22 @@
     </div>
 
     <div class="col-md-4">
-        @php($layout_type = $row->layout_type ?? 'horizontal')
+        @php($vertical_mode = $row->vertical_mode ?? 0)
         <div class="mb-3 form-group">
-            <label class="form-label" for="layout_type">{{ __('Layout Type') }} <span class="text-danger">*</span></label>
-            <select class="form-control" name="layout_type" id="layout_type">
-                <option value="horizontal" {{ $layout_type === 'horizontal' ? 'selected' : '' }}>{{ __('Horizontal Layout') }}</option>
-                <option value="vertical" {{ $layout_type === 'vertical' ? 'selected' : '' }}>{{ __('Vertical Layout') }}</option>
+            <label class="form-label" for="select_mode">{{ __('Select Mode') }} <span class="text-danger">*</span></label>
+            <select class="form-control" name="vertical_mode" id="select_mode">
+                <option value="0" {{ $vertical_mode == 0 ? 'selected' : '' }}>{{ __('Horizontal Mode') }}</option>
+                <option value="1" {{ $vertical_mode == 1 ? 'selected' : '' }}>{{ __('Vertical Mode') }}</option>
             </select>
         </div>
     </div>
 
     <div class="col-md-4">
-        @php($custom_background = $row->custom_background ?? '')
-        <div class="mb-3 form-group">
-            <label class="form-label" for="custom_background">{{ __('Custom Background') }}</label>
-            <input type="file" name="custom_background" id="custom_background" class="form-control" accept="image/*">
-            @if($custom_background)
-                <div class="mt-2">
-                    <img src="{{ asset('storage/' . $custom_background) }}" alt="Current Background" style="max-width: 100px; max-height: 100px; border-radius: 5px;">
-                    <small class="text-muted d-block">{{ __('Current background') }}</small>
-                </div>
-            @endif
-            <img id="background_preview" src="" alt="Background Preview" style="max-width: 100px; max-height: 100px; border-radius: 5px; margin-top: 10px; display: none;">
-        </div>
+        <!-- Empty column for layout balance -->
     </div>
 </div>
 
-<div class="col-md-4 mt-2">
-    <div class="row">
-        <div class="col-md-12">
-            @php($vertical_mode = __('Vertical Mode'))
-            @php($horizontal_mode = __('Horizontal Mode'))
-            <label class="form-label">{{ __('Select Mode') }}</label>
-            <div class="mt-4 mt-md-0">
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="vertical_mode" id="vertical_mode" value="1" {{ $row->vertical_mode ? 'checked' : '' }}>
-                    <label class="form-check-label" for="vertical_mode">{{ $vertical_mode }}</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="vertical_mode" id="horizontal_mode" value="0" {{ !$row->vertical_mode ? 'checked' : '' }}>
-                    <label class="form-check-label" for="horizontal_mode">{{ $horizontal_mode }}</label>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 
 {{-- <div class="col-md-4 mt-2">

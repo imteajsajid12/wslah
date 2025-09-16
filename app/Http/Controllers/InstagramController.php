@@ -263,6 +263,9 @@ class InstagramController extends Controller
 
         $ch = curl_init($long_lived_url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        // 🚨 Disable SSL verification (only for debugging!)
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         $long_lived_response = curl_exec($ch);
         curl_close($ch);
 
@@ -301,6 +304,9 @@ class InstagramController extends Controller
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        // 🚨 Disable SSL verification (only for debugging!)
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
         // Execute cURL and get the response
         $response = curl_exec($ch);
@@ -343,6 +349,9 @@ class InstagramController extends Controller
         // Get connected Instagram account
         $ch = curl_init("https://graph.facebook.com/v19.0/{$page_id}?fields=connected_instagram_account&access_token={$access_token}");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        // 🚨 Disable SSL verification (only for debugging!)
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
         $response = curl_exec($ch);
         curl_close($ch);
@@ -359,6 +368,9 @@ class InstagramController extends Controller
 
         $ch = curl_init("https://graph.facebook.com/v19.0/{$ig_user_id}/media?fields=id,media_type,media_url,caption,timestamp&access_token={$access_token}");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        // 🚨 Disable SSL verification (only for debugging!)
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
         $response = curl_exec($ch);
         curl_close($ch);
@@ -400,6 +412,9 @@ class InstagramController extends Controller
         // Initialize cURL
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        // 🚨 Disable SSL verification (only for debugging!)
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
         // Execute request and close cURL
         $response = curl_exec($ch);
@@ -407,7 +422,7 @@ class InstagramController extends Controller
 
         // Decode the response
         $stories = json_decode($response, true);
-        dd($response);
+        // dd($response);
 
         $this->saveReelsToDatabase($stories['data'], $user_id);
     }
@@ -422,6 +437,9 @@ class InstagramController extends Controller
         $access_token = $token; // From previous step
         $ch = curl_init("https://graph.facebook.com/v10.0/me/accounts?access_token=$access_token");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        // 🚨 Disable SSL verification (only for debugging!)
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
         // $response = curl_exec($ch);
         // curl_close($ch);

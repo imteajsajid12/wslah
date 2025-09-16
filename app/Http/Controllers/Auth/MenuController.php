@@ -250,6 +250,9 @@ class MenuController extends Controller
         $data = [
             'logo' => $rest->logo,
             'vertical_mode' => $rest->vertical_mode,
+            'theme_style' => $rest->theme_style ?? 'default',
+            'layout_type' => $rest->layout_type ?? 'horizontal',
+            'custom_background' => $rest->custom_background ?? null,
             'profile_picture' => asset('storage/' . $rest->profile_picture),
             'animation_timer' => (int)$rest->animation_timer * 1000,
             'menu_title' => [

@@ -36,7 +36,7 @@
                      <form autocomplete="off" novalidate="" action="{{ route('restaurant.environment.setting.updateRestaurant') }}" id="pristine-valid" method="post" enctype="multipart/form-data">
                          @method('put')
                          @csrf
-                         @include('restaurant.settings.fields')
+                         @include('/restaurant.settings.fields')
                          <div class="row">
                              <div class="col-12 mt-3">
 
@@ -231,21 +231,13 @@
             }
         });
 
-        // Layout type change handler
-        $('#layout_type').change(function() {
-            var selectedLayout = $(this).val();
-            updateThemePreview(selectedLayout);
-        });
-
-        // Custom background preview
-        $('#custom_background').change(function(e) {
-            var file = e.target.files[0];
-            if (file) {
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    $('#background_preview').attr('src', e.target.result).show();
-                };
-                reader.readAsDataURL(file);
+        // Select mode change handler (replaces layout type)
+        $('#select_mode').change(function() {
+            var selectedMode = $(this).val();
+            // Update theme preview if needed
+            if (typeof updateThemePreview === 'function') {
+                var layoutType = selectedMode == '1' ? 'vertical' : 'horizontal';
+                updateThemePreview(layoutType);
             }
         });
 
